@@ -118,12 +118,15 @@ export default async function CareersPage() {
                       <tr key={s.id} className="hover:bg-fog/50">
                         <td className="px-3 py-2">
                           <div className="font-medium text-ink">{s.role}</div>
-                          {s.usd_equivalent && <div className="text-ash">{s.usd_equivalent}</div>}
+                          {s.level && <div className="text-ash text-[10px]">{s.level}</div>}
                         </td>
-                        <td className="px-3 py-2 text-right font-semibold text-pine">
-                          {s.min_pkr && s.max_pkr
-                            ? `${(s.min_pkr / 1000).toFixed(0)}K–${(s.max_pkr / 1000).toFixed(0)}K`
-                            : '—'}
+                        <td className="px-3 py-2 text-right">
+                          <div className="font-semibold text-pine">
+                            {s.min_pkr && s.max_pkr
+                              ? `PKR ${(s.min_pkr / 1000).toFixed(0)}K–${(s.max_pkr / 1000).toFixed(0)}K`
+                              : '—'}
+                          </div>
+                          {s.notes && <div className="text-[10px] text-ash">{s.notes.split('.')[0]}</div>}
                         </td>
                       </tr>
                     ))}

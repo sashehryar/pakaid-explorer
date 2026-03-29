@@ -57,8 +57,8 @@ function NavLink({ item, userTier }: { item: NavItem; userTier: UserTier }) {
       className={cn(
         'group flex items-center gap-2.5 rounded-lg px-3 py-2 text-sm font-medium transition-all duration-150',
         isActive
-          ? 'bg-gold/10 text-gold border-l-2 border-gold pl-[10px]'
-          : 'text-white/65 hover:bg-white/8 hover:text-white',
+          ? 'bg-gold/15 text-gold border-l-2 border-gold pl-[10px]'
+          : 'text-white/90 hover:bg-white/10 hover:text-white',
         !hasAccess && 'opacity-50 cursor-not-allowed'
       )}
     >
@@ -74,7 +74,7 @@ function NavLink({ item, userTier }: { item: NavItem; userTier: UserTier }) {
           {item.badge}
         </span>
       )}
-      {!hasAccess && <ChevronRight size={12} className="shrink-0 text-white/35" />}
+      {!hasAccess && <ChevronRight size={12} className="shrink-0 text-white/50" />}
     </Link>
   )
 }
@@ -95,21 +95,21 @@ export function Sidebar({ userTier, isAdmin }: SidebarProps) {
       {/* Nav */}
       <nav className="flex-1 overflow-y-auto px-2 py-3 space-y-4">
         <section>
-          <p className="px-3 mb-1 text-[10px] font-bold uppercase tracking-widest text-white/35">
+          <p className="px-3 mb-1 text-[10px] font-bold uppercase tracking-widest text-white/50">
             Monitor
           </p>
           {MONITOR.map(item => <NavLink key={item.href} item={item} userTier={userTier} />)}
         </section>
 
         <section>
-          <p className="px-3 mb-1 text-[10px] font-bold uppercase tracking-widest text-white/35">
+          <p className="px-3 mb-1 text-[10px] font-bold uppercase tracking-widest text-white/50">
             Analyze
           </p>
           {ANALYZE.map(item => <NavLink key={item.href} item={item} userTier={userTier} />)}
         </section>
 
         <section>
-          <p className="px-3 mb-1 text-[10px] font-bold uppercase tracking-widest text-white/35">
+          <p className="px-3 mb-1 text-[10px] font-bold uppercase tracking-widest text-white/50">
             Research
           </p>
           {RESEARCH.map(item => <NavLink key={item.href} item={item} userTier={userTier} />)}
@@ -117,7 +117,7 @@ export function Sidebar({ userTier, isAdmin }: SidebarProps) {
 
         {isAdmin && (
           <section>
-            <p className="px-3 mb-1 text-[10px] font-bold uppercase tracking-widest text-white/35">
+            <p className="px-3 mb-1 text-[10px] font-bold uppercase tracking-widest text-white/50">
               Admin
             </p>
             <NavLink item={{ href: '/admin', label: 'Admin Panel', icon: Settings }} userTier={userTier} />
@@ -129,7 +129,7 @@ export function Sidebar({ userTier, isAdmin }: SidebarProps) {
       <div className="px-4 py-3 border-t border-white/10">
         <div className="flex items-center gap-2">
           <span className="live-dot" />
-          <span className="text-[11px] text-white/40">Data refreshed 06:14 PKT</span>
+          <span className="text-[11px] text-white/55">Data refreshed 06:14 PKT</span>
         </div>
       </div>
     </aside>
