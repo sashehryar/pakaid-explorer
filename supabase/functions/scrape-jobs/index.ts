@@ -1,94 +1,93 @@
 /**
  * Edge Function: scrape-jobs
- * Uses Apify to scrape ReliefWeb, UN Jobs, and DevNetJobs for Pakistan development jobs.
- * Trigger: twice daily cron
+ * Uses Apify web-scraper to pull Pakistan development jobs from ReliefWeb and UN Jobs.
+ * Trigger: daily cron
  */
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 
 const APIFY_BASE = 'https://api.apify.com/v2'
-
-interface ApifyJob {
-  title: string
-  organisation: string
-  orgType?: string
-  location?: string
-  employmentType?: string
-  seniority?: string
-  sector?: string
-  salaryLabel?: string
-  applyUrl: string
-  description?: string
-  deadline?: string
-  source: string
-}
-
-async function runApifyActor(actorId: string, input: Record<string, unknown>): Promise<ApifyJob[]> {
-  const token = Deno.env.get('APIFY_API_TOKEN')!
-
-  // Start actor run
-  const runRes = await fetch(`${APIFY_BASE}/acts/${actorId}/runs?token=${token}`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ ...input, maxItems: 50 }),
-  })
-  const run = await runRes.json()
-  const runId = run.data?.id
-  if (!runId) throw new Error(`Failed to start actor ${actorId}`)
-
-  // Poll for completion (max 60s)
-  for (let i = 0; i < 12; i++) {
-    await new Promise(r => setTimeout(r, 5000))
-    const statusRes = await fetch(`${APIFY_BASE}/actor-runs/${runId}?token=${token}`)
-    const status = await statusRes.json()
-    if (status.data?.status === 'SUCCEEDED') break
-    if (['FAILED', 'ABORTED', 'TIMED-OUT'].includes(status.data?.status)) {
-      throw new Error(`Actor ${actorId} ${status.data.status}`)
-    }
-  }
-
-  // Get dataset
-  const datasetId = run.data?.defaultDatasetId
-  const dataRes = await fetch(`${APIFY_BASE}/datasets/${datasetId}/items?token=${token}&clean=true`)
-  return await dataRes.json()
-}
+const ACTOR_ID   = 'moJRLRc85AitArpNN' // apify/web-scraper
 
 Deno.serve(async (req) => {
   if (req.method !== 'POST') return new Response('POST only', { status: 405 })
 
+  const token = Deno.env.get('APIFY_API_TOKEN')!
   const supabase = createClient(
     Deno.env.get('SUPABASE_URL')!,
-    Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!,
+    Deno.env.get('SERVICE_ROLE_KEY')!,
   )
 
-  // ReliefWeb Jobs via Apify web scraper
   try {
-    const jobs = await runApifyActor('apify/reliefweb-jobs', {
-      startUrls: [{ url: 'https://reliefweb.int/jobs?country=168&source=0' }],
-      maxPagesPerCrawl: 3,
+    const runRes = await fetch(`${APIFY_BASE}/acts/${ACTOR_ID}/runs?token=${token}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        startUrls: [
+          { url: 'https://reliefweb.int/jobs?country=168' },
+          { url: 'https://unjobs.org/duty_stations/pakistan' },
+        ],
+        maxPagesPerCrawl: 3,
+        maxConcurrency: 2,
+        pageFunction: `async function pageFunction({ request, $ }) {
+          const jobs = [];
+          // ReliefWeb
+          $('article.node--job, .node--type-job').each((i, el) => {
+            const title = $(el).find('h3,h2,.field--name-title').first().text().trim();
+            const org   = $(el).find('.field--name-field-source a, .source').first().text().trim();
+            const href  = $(el).find('a').first().attr('href') || '';
+            const dead  = $(el).find('time,.field--name-field-job-closing-date').first().text().trim();
+            if (title && href) jobs.push({ title, organisation: org || 'Unknown', applyUrl: href.startsWith('http') ? href : 'https://reliefweb.int' + href, deadline: dead, source: 'ReliefWeb', location: 'Pakistan' });
+          });
+          // UN Jobs
+          $('table tr td a').each((i, el) => {
+            const title = $(el).text().trim();
+            const href  = $(el).attr('href') || '';
+            if (title && title.length > 10 && href) jobs.push({ title, organisation: 'UN Agency', applyUrl: href.startsWith('http') ? href : 'https://unjobs.org' + href, source: 'UN Jobs', location: 'Pakistan' });
+          });
+          return jobs.slice(0, 30);
+        }`,
+      }),
     })
 
+    const run = await runRes.json()
+    const runId = run.data?.id
+    if (!runId) throw new Error('Failed to start actor run')
+
+    // Poll max 90s
+    let succeeded = false
+    for (let i = 0; i < 18; i++) {
+      await new Promise(r => setTimeout(r, 5000))
+      const s = await (await fetch(`${APIFY_BASE}/actor-runs/${runId}?token=${token}`)).json()
+      if (s.data?.status === 'SUCCEEDED') { succeeded = true; break }
+      if (['FAILED','ABORTED','TIMED-OUT'].includes(s.data?.status)) throw new Error(`Actor ${s.data.status}`)
+    }
+    if (!succeeded) throw new Error('Actor timed out')
+
+    const items = await (await fetch(`${APIFY_BASE}/datasets/${run.data?.defaultDatasetId}/items?token=${token}&clean=true`)).json()
+
     let upserted = 0
-    for (const job of jobs) {
+    for (const job of (Array.isArray(items) ? items.flat() : [])) {
+      if (!job?.title || !job?.applyUrl) continue
       const { error } = await supabase.from('jobs').upsert({
-        title: job.title,
-        organisation: job.organisation,
-        org_type: job.orgType,
-        location: job.location ?? 'Pakistan',
-        employment_type: job.employmentType,
-        seniority: job.seniority,
-        sector: job.sector,
-        salary_label: job.salaryLabel,
-        apply_url: job.applyUrl,
-        description: job.description,
-        deadline: job.deadline,
-        source: job.source ?? 'ReliefWeb',
+        title:           job.title,
+        organisation:    job.organisation || 'Unknown',
+        org_type:        job.orgType ?? null,
+        location:        job.location ?? 'Pakistan',
+        employment_type: job.employmentType ?? null,
+        seniority:       job.seniority ?? null,
+        sector:          job.sector ?? null,
+        salary_label:    job.salaryLabel ?? null,
+        apply_url:       job.applyUrl,
+        description:     job.description ?? null,
+        deadline:        job.deadline ?? null,
+        source:          job.source ?? 'ReliefWeb',
       }, { onConflict: 'apply_url' })
       if (!error) upserted++
     }
 
     await supabase.from('scraper_logs')
       .update({ status: 'healthy', last_run: new Date().toISOString(), records_last_run: upserted })
-      .eq('apify_actor_id', 'apify/reliefweb-jobs')
+      .eq('name', 'ReliefWeb Jobs')
 
     return new Response(JSON.stringify({ ok: true, upserted }), {
       headers: { 'Content-Type': 'application/json' },
@@ -96,7 +95,7 @@ Deno.serve(async (req) => {
   } catch (err) {
     await supabase.from('scraper_logs')
       .update({ status: 'failing', error_message: String(err) })
-      .eq('apify_actor_id', 'apify/reliefweb-jobs')
+      .eq('name', 'ReliefWeb Jobs')
 
     return new Response(JSON.stringify({ ok: false, error: String(err) }), {
       status: 500, headers: { 'Content-Type': 'application/json' },

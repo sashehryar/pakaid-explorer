@@ -34,7 +34,7 @@ Deno.serve(async (req) => {
 
   const supabase = createClient(
     Deno.env.get('SUPABASE_URL')!,
-    Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!,
+    Deno.env.get('SERVICE_ROLE_KEY')!,
   )
 
   const token = Deno.env.get('APIFY_API_TOKEN')!
@@ -43,7 +43,7 @@ Deno.serve(async (req) => {
   for (const src of NEWS_SOURCES) {
     try {
       // Use Apify's built-in web scraper
-      const runRes = await fetch(`${APIFY_BASE}/acts/apify~web-scraper/runs?token=${token}`, {
+      const runRes = await fetch(`${APIFY_BASE}/acts/moJRLRc85AitArpNN/runs?token=${token}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
