@@ -3,7 +3,7 @@ import { createClient } from '@/lib/supabase/server'
 import { formatDate } from '@/lib/utils'
 import type { Job, SalaryBenchmark, ConsultingFirm } from '@/lib/types/database'
 
-export const metadata: Metadata = { title: 'Careers & Salaries' }
+export const metadata: Metadata = { title: 'Browse Careers' }
 
 const SENIORITY_COLORS: Record<string, string> = {
   'Entry':   'bg-blue-50 text-blue-700',
@@ -31,7 +31,7 @@ export default async function CareersPage() {
   return (
     <div className="space-y-6 max-w-7xl">
       <div>
-        <h1 className="text-xl font-bold text-ink">Careers & Salaries</h1>
+        <h1 className="text-xl font-bold text-ink">Browse Careers</h1>
         <p className="text-sm text-ash mt-0.5 flex items-center gap-2">
           <span className="live-dot" />
           ReliefWeb · UN Jobs · DevNetJobs · Salary benchmarks

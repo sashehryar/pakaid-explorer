@@ -82,8 +82,8 @@ export default function DuplicatesPage() {
   return (
     <div className="space-y-6 max-w-4xl">
       <div>
-        <h1 className="text-xl font-bold text-ink">Duplicate Checker</h1>
-        <p className="text-sm text-ash mt-0.5">Check your proposal for overlap against the active portfolio</p>
+        <h1 className="text-xl font-bold text-ink">Detect Overlaps</h1>
+        <p className="text-sm text-ash mt-0.5">Surface overlap between your proposal and the active Pakistan portfolio</p>
       </div>
 
       {/* Form */}

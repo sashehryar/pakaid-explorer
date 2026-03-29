@@ -3,7 +3,7 @@ import { createClient } from '@/lib/supabase/server'
 import type { ConsultingFirm } from '@/lib/types/database'
 import { FirmCards } from './firm-cards'
 
-export const metadata: Metadata = { title: 'Firm Tracker' }
+export const metadata: Metadata = { title: 'Profile Firms' }
 
 export default async function FirmsPage() {
 
@@ -22,8 +22,8 @@ export default async function FirmsPage() {
   return (
     <div className="space-y-6 max-w-7xl">
       <div>
-        <h1 className="text-xl font-bold text-ink">Consulting Firm Tracker</h1>
-        <p className="text-sm text-ash mt-0.5">Hiring signals · Contract pipeline · Revenue intelligence</p>
+        <h1 className="text-xl font-bold text-ink">Profile Firms</h1>
+        <p className="text-sm text-ash mt-0.5">Hiring signals · contract pipeline · competitive positioning</p>
       </div>
 
       <div className="grid grid-cols-3 gap-3">

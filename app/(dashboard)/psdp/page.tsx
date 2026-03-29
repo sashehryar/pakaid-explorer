@@ -3,7 +3,7 @@ import { createClient } from '@/lib/supabase/server'
 import type { PsdpItem } from '@/lib/types/database'
 import { PsdpTabs } from './psdp-tabs'
 
-export const metadata: Metadata = { title: 'PSDP Analysis' }
+export const metadata: Metadata = { title: 'Analyze PSDP' }
 
 export default async function PsdpPage() {
 
@@ -26,7 +26,7 @@ export default async function PsdpPage() {
   return (
     <div className="space-y-6 max-w-7xl">
       <div>
-        <h1 className="text-xl font-bold text-ink">PSDP Execution Analysis</h1>
+        <h1 className="text-xl font-bold text-ink">Analyze PSDP</h1>
         <p className="text-sm text-ash mt-0.5">FY2025–26 Q3 · Federal PSDP · Provincial ADPs · Ministry tracking</p>
       </div>
 

@@ -6,7 +6,7 @@ import { Badge } from '@/components/ui/badge'
 import { FundingFilters } from './filters'
 import { ExpiryCard } from './expiry-card'
 
-export const metadata: Metadata = { title: 'Funding Intelligence' }
+export const metadata: Metadata = { title: 'Track Funding' }
 
 
 const SOURCES = [
@@ -67,7 +67,7 @@ export default async function FundingPage() {
     <div className="space-y-6 max-w-7xl">
       {/* Header */}
       <div>
-        <h1 className="text-xl font-bold text-ink">Funding Intelligence</h1>
+        <h1 className="text-xl font-bold text-ink">Track Funding</h1>
         <p className="text-sm text-ash mt-0.5 flex items-center gap-2">
           <span className="live-dot" />
           Live feed · Active programmes + expiry tracker

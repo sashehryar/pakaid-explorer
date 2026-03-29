@@ -3,7 +3,7 @@ import { createClient } from '@/lib/supabase/server'
 import { formatUSD, formatDate } from '@/lib/utils'
 import type { Tender } from '@/lib/types/database'
 
-export const metadata: Metadata = { title: 'Procurement' }
+export const metadata: Metadata = { title: 'Find Tenders' }
 
 const STATUS_STYLES = {
   open:       { dot: 'bg-fern', label: 'OPEN',       chip: 'bg-green-50 text-green-700' },
@@ -29,7 +29,7 @@ export default async function ProcurementPage() {
   return (
     <div className="space-y-6 max-w-7xl">
       <div>
-        <h1 className="text-xl font-bold text-ink">Procurement Tracker</h1>
+        <h1 className="text-xl font-bold text-ink">Find Tenders</h1>
         <p className="text-sm text-ash mt-0.5 flex items-center gap-2">
           <span className="live-dot" />
           Open tenders · WB · ADB · FCDO · EU · GIZ · UN

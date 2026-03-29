@@ -3,7 +3,7 @@ import { createClient } from '@/lib/supabase/server'
 import type { RegulatoryEntry } from '@/lib/types/database'
 import { RegulatoryAccordion } from './regulatory-accordion'
 
-export const metadata: Metadata = { title: 'Regulatory Guide' }
+export const metadata: Metadata = { title: 'Navigate Regulations' }
 
 const COMPLEXITY_STYLES = {
   Low:    'bg-green-50 text-green-700',
@@ -26,7 +26,7 @@ export default async function RegulatoryPage() {
   return (
     <div className="space-y-6 max-w-4xl">
       <div>
-        <h1 className="text-xl font-bold text-ink">Regulatory & Compliance Guide</h1>
+        <h1 className="text-xl font-bold text-ink">Navigate Regulations</h1>
         <p className="text-sm text-ash mt-0.5">INGO registration · Tax · Procurement · Foreign exchange · AML</p>
       </div>
 

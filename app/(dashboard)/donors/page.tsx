@@ -3,7 +3,7 @@ import { createClient } from '@/lib/supabase/server'
 import { formatUSD } from '@/lib/utils'
 import type { Donor } from '@/lib/types/database'
 
-export const metadata: Metadata = { title: 'Donor Database' }
+export const metadata: Metadata = { title: 'Explore Donors' }
 
 const TYPE_COLORS: Record<string, string> = {
   'MDB':       'bg-blue-100 text-blue-700',
@@ -25,8 +25,8 @@ export default async function DonorsPage() {
   return (
     <div className="space-y-6 max-w-7xl">
       <div>
-        <h1 className="text-xl font-bold text-ink">Donor Database</h1>
-        <p className="text-sm text-ash mt-0.5">Entry paths · Procurement models · Intelligence profiles</p>
+        <h1 className="text-xl font-bold text-ink">Explore Donors</h1>
+        <p className="text-sm text-ash mt-0.5">Entry paths · procurement models · donor strategy profiles</p>
       </div>
 
       {/* Stats */}
