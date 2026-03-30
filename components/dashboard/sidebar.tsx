@@ -8,6 +8,7 @@ import {
   Activity, ShoppingBag, Newspaper, Globe2, Brain,
   AlertTriangle, Copy, Briefcase, Users, BarChart3,
   Shield, Settings, ChevronRight, Database, Clock,
+  Kanban, Trophy, TrendingUp, Handshake, ClipboardCheck,
 } from 'lucide-react'
 
 interface NavItem {
@@ -36,6 +37,14 @@ const RESEARCH: NavItem[] = [
   { href: '/psdp',        label: 'Analyze PSDP',         icon: BarChart3,    tier: 'institutional', badge: '★ PRO' },
   { href: '/careers',     label: 'Browse Careers',       icon: Briefcase },
   { href: '/regulatory',  label: 'Navigate Regulations', icon: Shield },
+]
+
+const FIRMS_SUB: NavItem[] = [
+  { href: '/firms/pipeline',   label: 'Bid Pipeline',   icon: Kanban,         tier: 'institutional' },
+  { href: '/firms/wins',       label: 'Win Tracker',    icon: Trophy,         tier: 'institutional' },
+  { href: '/firms/market',     label: 'Market Intel',   icon: TrendingUp,     tier: 'institutional' },
+  { href: '/firms/eme',        label: 'Market Engage',  icon: Handshake,      tier: 'institutional' },
+  { href: '/firms/compliance', label: 'Compliance',     icon: ClipboardCheck, tier: 'institutional' },
 ]
 
 interface SidebarProps {
@@ -80,6 +89,9 @@ function NavLink({ item, userTier }: { item: NavItem; userTier: UserTier }) {
 }
 
 export function Sidebar({ userTier, isAdmin }: SidebarProps) {
+  const pathname = usePathname()
+  const firmsExpanded = pathname.startsWith('/firms')
+
   return (
     <aside className="flex h-full w-[220px] shrink-0 flex-col bg-forest border-r border-white/10">
       {/* Logo */}
@@ -112,7 +124,18 @@ export function Sidebar({ userTier, isAdmin }: SidebarProps) {
           <p className="px-3 mb-1 text-[10px] font-bold uppercase tracking-widest text-white/50">
             Research
           </p>
-          {RESEARCH.map(item => <NavLink key={item.href} item={item} userTier={userTier} />)}
+          {RESEARCH.map(item => (
+            <div key={item.href}>
+              <NavLink item={item} userTier={userTier} />
+              {item.href === '/firms' && firmsExpanded && (
+                <div className="ml-3 mt-0.5 border-l border-white/10 pl-2 space-y-0.5">
+                  {FIRMS_SUB.map(sub => (
+                    <NavLink key={sub.href} item={sub} userTier={userTier} />
+                  ))}
+                </div>
+              )}
+            </div>
+          ))}
         </section>
 
         {isAdmin && (

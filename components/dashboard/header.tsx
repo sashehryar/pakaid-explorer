@@ -1,11 +1,11 @@
 'use client'
 
-import { useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { useRouter } from 'next/navigation'
 import { cn } from '@/lib/utils'
 import type { UserTier } from '@/lib/types/database'
-import { Search, Bell, ChevronDown, LogOut, Settings, User } from 'lucide-react'
+import { Bell, ChevronDown, LogOut, Settings, User } from 'lucide-react'
+import { GlobalSearch } from './global-search'
 import {
   DropdownMenu, DropdownMenuContent, DropdownMenuItem,
   DropdownMenuSeparator, DropdownMenuTrigger,
@@ -34,8 +34,6 @@ interface HeaderProps {
 export function Header({ email, fullName, tier }: HeaderProps) {
   const router = useRouter()
   const supabase = createClient()
-  const [query, setQuery] = useState('')
-
   const initials = fullName
     ? fullName.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2)
     : (email?.[0] ?? 'U').toUpperCase()
@@ -48,15 +46,8 @@ export function Header({ email, fullName, tier }: HeaderProps) {
   return (
     <header className="flex h-14 items-center gap-4 border-b border-silver bg-card px-4 shrink-0">
       {/* Search */}
-      <div className="flex flex-1 items-center gap-2 rounded-lg border border-silver bg-fog px-3 py-1.5 max-w-sm">
-        <Search size={14} className="text-ash shrink-0" />
-        <input
-          type="text"
-          value={query}
-          onChange={e => setQuery(e.target.value)}
-          placeholder="Search projects, donors, tenders…"
-          className="flex-1 bg-transparent text-sm outline-none placeholder:text-ash"
-        />
+      <div className="flex-1 max-w-sm">
+        <GlobalSearch />
       </div>
 
       <div className="flex items-center gap-2 ml-auto">

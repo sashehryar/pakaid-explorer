@@ -7,6 +7,11 @@ export type IMFStatus = 'green' | 'amber' | 'red'
 export type FirmTrend = 'Growing' | 'Stable' | 'Contracting'
 export type ScraperStatus = 'healthy' | 'failing' | 'disabled' | 'running'
 export type PsdpRisk = 'low' | 'medium' | 'high'
+export type BidStage = 'opportunity_id' | 'go_no_go' | 'teaming' | 'writing' | 'review' | 'submitted' | 'awarded' | 'lost'
+export type BidPriority = 'low' | 'medium' | 'high' | 'critical'
+export type TaskStatus = 'open' | 'in_progress' | 'done' | 'blocked'
+export type EmeType = 'rfi' | 'framework' | 'forecast' | 'relationship' | 'meeting'
+export type ComplianceCategory = 'accreditation' | 'insurance' | 'framework' | 'registration' | 'certification' | 'tax' | 'legal' | 'other'
 
 export interface Profile {
   id: string
@@ -228,6 +233,94 @@ export interface ScraperLog {
   updated_at: string
 }
 
+export interface BidPipeline {
+  id: string
+  user_id: string
+  title: string
+  donor: string
+  sector: string | null
+  province: string | null
+  value_usd: number | null
+  stage: BidStage
+  priority: BidPriority
+  deadline: string | null
+  go_no_go_date: string | null
+  lead_firm: string | null
+  partners: string[] | null
+  win_probability: number | null
+  notes: string | null
+  source_url: string | null
+  tender_id: string | null
+  created_at: string
+  updated_at: string
+}
+
+export interface BidTask {
+  id: string
+  bid_id: string
+  user_id: string
+  title: string
+  assignee: string | null
+  due_date: string | null
+  status: TaskStatus
+  notes: string | null
+  created_at: string
+}
+
+export interface ContractWin {
+  id: string
+  user_id: string
+  title: string
+  donor: string
+  sector: string | null
+  province: string | null
+  value_usd: number | null
+  award_date: string | null
+  start_date: string | null
+  end_date: string | null
+  client: string | null
+  lead_firm: string | null
+  our_role: string | null
+  bid_id: string | null
+  lessons_learned: string | null
+  created_at: string
+}
+
+export interface EmeItem {
+  id: string
+  user_id: string
+  title: string
+  type: EmeType
+  donor: string | null
+  sector: string | null
+  province: string | null
+  value_usd: number | null
+  expected_date: string | null
+  contact_name: string | null
+  contact_role: string | null
+  notes: string | null
+  action_taken: string | null
+  next_step: string | null
+  source_url: string | null
+  created_at: string
+  updated_at: string
+}
+
+export interface ComplianceItem {
+  id: string
+  user_id: string
+  title: string
+  category: ComplianceCategory
+  authority: string | null
+  reference: string | null
+  issued_date: string | null
+  expiry_date: string | null
+  renewal_url: string | null
+  notes: string | null
+  created_at: string
+  updated_at: string
+}
+
 // Supabase Database interface (for typed client)
 export interface Database {
   public: {
@@ -246,6 +339,11 @@ export interface Database {
       psdp_items: { Row: PsdpItem; Insert: Partial<PsdpItem>; Update: Partial<PsdpItem> }
       regulatory_entries: { Row: RegulatoryEntry; Insert: Partial<RegulatoryEntry>; Update: Partial<RegulatoryEntry> }
       scraper_logs: { Row: ScraperLog; Insert: Partial<ScraperLog>; Update: Partial<ScraperLog> }
+      bid_pipeline: { Row: BidPipeline; Insert: Partial<BidPipeline>; Update: Partial<BidPipeline> }
+      bid_tasks: { Row: BidTask; Insert: Partial<BidTask>; Update: Partial<BidTask> }
+      contract_wins: { Row: ContractWin; Insert: Partial<ContractWin>; Update: Partial<ContractWin> }
+      eme_items: { Row: EmeItem; Insert: Partial<EmeItem>; Update: Partial<EmeItem> }
+      compliance_items: { Row: ComplianceItem; Insert: Partial<ComplianceItem>; Update: Partial<ComplianceItem> }
     }
     Views: Record<string, never>
     Functions: Record<string, never>
