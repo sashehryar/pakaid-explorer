@@ -7,7 +7,7 @@ import type { UserTier } from '@/lib/types/database'
 import {
   Activity, ShoppingBag, Newspaper, Globe2, Brain,
   AlertTriangle, Copy, Briefcase, Users, BarChart3,
-  Shield, Settings, ChevronRight,
+  Shield, Settings, ChevronRight, Database, Clock,
 } from 'lucide-react'
 
 interface NavItem {
@@ -121,6 +121,11 @@ export function Sidebar({ userTier, isAdmin }: SidebarProps) {
               Admin
             </p>
             <NavLink item={{ href: '/admin', label: 'Admin Panel', icon: Settings }} userTier={userTier} />
+            <div className="ml-3 mt-0.5 border-l border-white/10 pl-2 space-y-0.5">
+              <NavLink item={{ href: '/admin/users',    label: 'Users',    icon: Users    }} userTier={userTier} />
+              <NavLink item={{ href: '/admin/scrapers', label: 'Scrapers', icon: Clock    }} userTier={userTier} />
+              <NavLink item={{ href: '/admin/data',     label: 'Data',     icon: Database }} userTier={userTier} />
+            </div>
           </section>
         )}
       </nav>
