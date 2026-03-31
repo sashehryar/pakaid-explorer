@@ -60,7 +60,7 @@ function BidCard({ bid, tasks, onStageChange, onDelete }: {
       <div className="flex items-start justify-between gap-2">
         <p className="text-xs font-semibold text-ink leading-tight flex-1">{bid.title}</p>
         <button
-          onClick={e => { e.stopPropagation(); startTransition(() => onDelete(bid.id)) }}
+          onClick={e => { e.stopPropagation(); startTransition(async () => { await onDelete(bid.id) }) }}
           className="text-silver hover:text-danger shrink-0"
         >
           <Trash2 size={11} />
@@ -105,7 +105,7 @@ function BidCard({ bid, tasks, onStageChange, onDelete }: {
               {bidTasks.map(t => (
                 <div key={t.id} className="flex items-center gap-1.5">
                   <button
-                    onClick={() => startTransition(() => updateTaskStatus(t.id, t.status === 'done' ? 'open' : 'done'))}
+                    onClick={() => startTransition(async () => { await updateTaskStatus(t.id, t.status === 'done' ? 'open' : 'done') })}
                     className="text-ash hover:text-pine"
                   >
                     {t.status === 'done' ? <CheckSquare size={11} className="text-fern" /> : <Square size={11} />}
@@ -126,7 +126,7 @@ function BidCard({ bid, tasks, onStageChange, onDelete }: {
               <button
                 key={s}
                 disabled={bid.stage === s || isPending}
-                onClick={() => startTransition(() => onStageChange(bid.id, s as BidStage))}
+                onClick={() => startTransition(async () => { await onStageChange(bid.id, s as BidStage) })}
                 className="text-[9px] px-1.5 py-0.5 rounded border border-silver hover:bg-fog disabled:opacity-40 capitalize"
               >
                 {s}

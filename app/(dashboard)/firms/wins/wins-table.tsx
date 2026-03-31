@@ -40,7 +40,7 @@ export function WinsTable({ wins: initialWins }: { wins: ContractWin[] }) {
 
   function handleDelete(id: string) {
     setWins(prev => prev.filter(w => w.id !== id))
-    startTransition(() => deleteWin(id))
+    startTransition(async () => { await deleteWin(id) })
   }
 
   return (

@@ -97,7 +97,7 @@ export function GlobalSearch() {
   }, [])
 
   useEffect(() => {
-    const t = setTimeout(() => startTransition(() => search(query)), 250)
+    const t = setTimeout(() => startTransition(async () => { await search(query) }), 250)
     return () => clearTimeout(t)
   }, [query, search])
 

@@ -86,7 +86,7 @@ export function ComplianceTracker({ items: initialItems }: { items: ComplianceIt
 
   function handleDelete(id: string) {
     setItems(prev => prev.filter(i => i.id !== id))
-    startTransition(() => deleteComplianceItem(id))
+    startTransition(async () => { await deleteComplianceItem(id) })
   }
 
   return (
