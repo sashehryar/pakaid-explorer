@@ -3,7 +3,7 @@ import { createClient } from '@/lib/supabase/server'
 import type { PsdpScheme } from '@/lib/types/database'
 import { PsdpDashboard } from './psdp-dashboard'
 
-export const metadata: Metadata = { title: 'Analyze PSDP' }
+export const metadata: Metadata = { title: 'PSDP and ADP Spend' }
 
 export default async function PsdpPage() {
   const supabase = await createClient()
@@ -26,7 +26,8 @@ export default async function PsdpPage() {
   return (
     <div className="space-y-6 max-w-7xl">
       <div>
-        <h1 className="text-xl font-bold text-ink">Analyze PSDP</h1>
+        <h1 className="text-xl font-bold text-ink">PSDP and ADP Spend</h1>
+        <p className="text-sm" style={{ color: 'var(--color-text-secondary)' }}>Compare Pakistan&#39;s Public Sector Development Programme and Annual Development Program budgets with actual execution</p>
         <p className="text-sm text-ash mt-0.5">
           Execution intelligence · Opportunity signals · Stakeholder views · FY2024–25
         </p>

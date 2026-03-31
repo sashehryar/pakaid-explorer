@@ -3,7 +3,7 @@ import { createClient } from '@/lib/supabase/server'
 import { formatDate } from '@/lib/utils'
 import type { IMFAction } from '@/lib/types/database'
 
-export const metadata: Metadata = { title: 'Assess Political Risk' }
+export const metadata: Metadata = { title: 'Political and Fiscal Risk' }
 
 const STATUS_STYLES = {
   green: { dot: 'bg-fern', label: 'ON TRACK', chip: 'bg-green-50 text-green-700 border border-green-200' },
@@ -35,7 +35,8 @@ export default async function IntelligencePage() {
   return (
     <div className="space-y-6 max-w-7xl">
       <div>
-        <h1 className="text-xl font-bold text-ink">Assess Political Risk</h1>
+        <h1 className="text-xl font-bold text-ink">Political and Fiscal Risk</h1>
+        <p className="text-sm" style={{ color: 'var(--color-text-secondary)' }}>Track shocks that hit programmes</p>
         <p className="text-sm text-ash mt-0.5">IMF prior actions · provincial fiscal health · donor policy signals</p>
       </div>
 

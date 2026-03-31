@@ -1,7 +1,7 @@
 import type { Metadata } from 'next'
 import { createClient } from '@/lib/supabase/server'
 
-export const metadata: Metadata = { title: 'Market Intelligence' }
+export const metadata: Metadata = { title: 'Market Intel' }
 
 const SECTORS = ['Health', 'Education', 'WASH', 'Governance', 'Agriculture', 'Livelihoods', 'Protection', 'Climate', 'Economic Growth']
 const DONORS  = ['USAID', 'FCDO', 'EU', 'World Bank', 'ADB', 'GIZ', 'UNICEF', 'WHO', 'UNDP']
@@ -63,7 +63,8 @@ export default async function MarketPage() {
   return (
     <div className="space-y-6 max-w-7xl">
       <div>
-        <h1 className="text-xl font-bold text-ink">Market Intelligence</h1>
+        <h1 className="text-xl font-bold text-ink">Market Intel</h1>
+        <p className="text-sm" style={{ color: 'var(--color-text-secondary)' }}>Analyze aid volumes and trends by donor, sector, and province</p>
         <p className="text-sm text-ash mt-0.5">Buyer behavior · sector concentration · firm positioning</p>
       </div>
 

@@ -1,0 +1,17 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(head -20 app/\\\\\\(dashboard\\\\\\)/funding/page.tsx)",
+      "Bash(head -20 app/\\\\\\(dashboard\\\\\\)/procurement/page.tsx)",
+      "Bash(head -20 app/\\\\\\(dashboard\\\\\\)/news/page.tsx)",
+      "Bash(head -20 app/\\\\\\(dashboard\\\\\\)/donors/page.tsx)",
+      "Bash(head -20 app/\\\\\\(dashboard\\\\\\)/intelligence/page.tsx)",
+      "Bash(head -20 app/\\\\\\(dashboard\\\\\\)/usaid-gap/page.tsx)",
+      "Bash(head -10 app/\\\\\\(dashboard\\\\\\)/duplicates/page.tsx)",
+      "Bash(head -10 app/\\\\\\(dashboard\\\\\\)/firms/page.tsx)",
+      "Bash(head -10 app/\\\\\\(dashboard\\\\\\)/firms/pipeline/page.tsx)",
+      "Bash(head -10 app/\\\\\\(dashboard\\\\\\)/firms/wins/page.tsx)",
+      "Bash(head -10 app/\\\\\\(dashboard\\\\\\)/firms/market/page.tsx)"
+    ]
+  }
+}

@@ -4,7 +4,7 @@ import { formatUSD, daysUntil } from '@/lib/utils'
 import type { Project } from '@/lib/types/database'
 import { FundingFeed } from './funding-feed'
 
-export const metadata: Metadata = { title: 'Track Funding' }
+export const metadata: Metadata = { title: 'Aid Pipeline Monitor' }
 
 
 
@@ -43,7 +43,8 @@ export default async function FundingPage() {
     <div className="space-y-6 max-w-7xl">
       {/* Header */}
       <div>
-        <h1 className="text-xl font-bold text-ink">Track Funding</h1>
+        <h1 className="text-xl font-bold text-ink">Aid Pipeline Monitor</h1>
+        <p className="text-sm" style={{ color: 'var(--color-text-secondary)' }}>Track live donor funding, disbursements, and expiry risks across Pakistan</p>
         <p className="text-sm text-ash mt-0.5 flex items-center gap-2">
           <span className="live-dot" />
           Live feed · Active programmes + expiry tracker

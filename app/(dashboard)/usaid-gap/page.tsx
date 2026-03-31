@@ -3,7 +3,7 @@ import { createClient } from '@/lib/supabase/server'
 import { formatUSD } from '@/lib/utils'
 import type { UsaidGapProgram } from '@/lib/types/database'
 
-export const metadata: Metadata = { title: 'Aid Risk Monitor' }
+export const metadata: Metadata = { title: 'Aid Disruption Monitor' }
 
 const FILL_STYLES = {
   None:    { chip: 'bg-red-50 text-red-700 border border-red-200', bar: 'bg-red-400', label: 'UNFILLED' },
@@ -38,7 +38,8 @@ export default async function UsaidGapPage() {
   return (
     <div className="space-y-6 max-w-7xl">
       <div>
-        <h1 className="text-xl font-bold text-ink">Aid Risk Monitor</h1>
+        <h1 className="text-xl font-bold text-ink">Aid Disruption Monitor</h1>
+        <p className="text-sm" style={{ color: 'var(--color-text-secondary)' }}>Flag freezes, withdrawals, and gaps across donors and sectors</p>
         <p className="text-sm text-ash mt-0.5">Geopolitical disruptions to Pakistan&apos;s aid landscape · Funding gaps, replacements &amp; exposure</p>
       </div>
 

@@ -49,6 +49,7 @@ export default async function PipelinePage() {
     <div className="space-y-6">
       <div>
         <h1 className="text-xl font-bold text-ink">Bid Pipeline</h1>
+        <p className="text-sm" style={{ color: 'var(--color-text-secondary)' }}>Follow upcoming and live bids from lead identification through award</p>
         <p className="text-sm text-ash mt-0.5">Track every bid from identification to award</p>
       </div>
 

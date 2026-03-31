@@ -4,7 +4,7 @@ import type { ContractWin } from '@/lib/types/database'
 import { WinsTable } from './wins-table'
 import { formatDate } from '@/lib/utils'
 
-export const metadata: Metadata = { title: 'Win Tracker' }
+export const metadata: Metadata = { title: 'Awards Tracker' }
 
 export default async function WinsPage() {
   const supabase = await createClient()
@@ -31,7 +31,8 @@ export default async function WinsPage() {
   return (
     <div className="space-y-6 max-w-7xl">
       <div>
-        <h1 className="text-xl font-bold text-ink">Win Tracker</h1>
+        <h1 className="text-xl font-bold text-ink">Awards Tracker</h1>
+        <p className="text-sm" style={{ color: 'var(--color-text-secondary)' }}>Track awarded contracts with winner, donor, value, and sector</p>
         <p className="text-sm text-ash mt-0.5">Contract awards log · performance analytics · lessons learned</p>
       </div>
 

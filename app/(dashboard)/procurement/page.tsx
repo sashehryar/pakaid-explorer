@@ -3,7 +3,7 @@ import { createClient } from '@/lib/supabase/server'
 import type { Tender } from '@/lib/types/database'
 import { TenderBoard } from './tender-board'
 
-export const metadata: Metadata = { title: 'Find Tenders' }
+export const metadata: Metadata = { title: 'Tender Opportunities' }
 
 export default async function ProcurementPage() {
   const supabase = await createClient()
@@ -23,7 +23,8 @@ export default async function ProcurementPage() {
   return (
     <div className="space-y-6 max-w-7xl">
       <div>
-        <h1 className="text-xl font-bold text-ink">Find Tenders</h1>
+        <h1 className="text-xl font-bold text-ink">Tender Opportunities</h1>
+        <p className="text-sm" style={{ color: 'var(--color-text-secondary)' }}>Find Pakistan RFPs, evaluations, and grant calls instantly</p>
         <p className="text-sm text-ash mt-0.5 flex items-center gap-2">
           <span className="live-dot" />
           Open tenders · WB · ADB · FCDO · EU · GIZ · UN · Click any card to apply

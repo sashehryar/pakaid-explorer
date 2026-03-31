@@ -3,7 +3,7 @@ import { createClient } from '@/lib/supabase/server'
 import type { EmeItem } from '@/lib/types/database'
 import { EmeList } from './eme-list'
 
-export const metadata: Metadata = { title: 'Early Market Engagement' }
+export const metadata: Metadata = { title: 'Donor Engagement' }
 
 const TYPE_LABELS: Record<string, string> = {
   rfi:          'RFI',
@@ -34,7 +34,8 @@ export default async function EmePage() {
   return (
     <div className="space-y-6 max-w-7xl">
       <div>
-        <h1 className="text-xl font-bold text-ink">Early Market Engagement</h1>
+        <h1 className="text-xl font-bold text-ink">Donor Engagement</h1>
+        <p className="text-sm" style={{ color: 'var(--color-text-secondary)' }}>Plan and track outreach, meetings, and account strategy</p>
         <p className="text-sm text-ash mt-0.5">RFIs · framework agreements · pipeline forecasts · relationship building</p>
       </div>
 

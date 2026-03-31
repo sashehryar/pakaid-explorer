@@ -4,7 +4,7 @@ import { timeAgo } from '@/lib/utils'
 import type { NewsArticle } from '@/lib/types/database'
 import { NewsModal } from './news-modal'
 
-export const metadata: Metadata = { title: 'Follow News' }
+export const metadata: Metadata = { title: 'News & Updates' }
 
 export default async function NewsPage() {
 
@@ -22,7 +22,8 @@ export default async function NewsPage() {
   return (
     <div className="space-y-6 max-w-7xl">
       <div>
-        <h1 className="text-xl font-bold text-ink">Follow News</h1>
+        <h1 className="text-xl font-bold text-ink">News &amp; Updates</h1>
+        <p className="text-sm" style={{ color: 'var(--color-text-secondary)' }}>Watch real-time shifts in reforms, budgets, and donor decisions</p>
         <p className="text-sm text-ash mt-0.5 flex items-center gap-2">
           <span className="live-dot" />
           Pakistan development, fiscal policy, donor intelligence
