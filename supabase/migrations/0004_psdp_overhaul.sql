@@ -126,7 +126,7 @@ CREATE INDEX idx_psdp_opportunity     ON psdp_schemes(opportunity_type);
 
 CREATE TRIGGER psdp_schemes_updated_at
   BEFORE UPDATE ON psdp_schemes
-  FOR EACH ROW EXECUTE FUNCTION update_updated_at();
+  FOR EACH ROW EXECUTE FUNCTION set_updated_at();
 
 -- ── RLS ───────────────────────────────────────────────────────────────
 
