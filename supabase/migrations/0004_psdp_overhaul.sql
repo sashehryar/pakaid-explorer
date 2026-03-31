@@ -244,7 +244,7 @@ INSERT INTO psdp_schemes (
   'provincial_adp', '2024-25',
   1.85, 1.60, 1.45, 90.6, 85.0, -5.6,
   '2023-07-01', '2025-06-30',
-  'late_implementation', 'low',
+  'completion', 'low',
   false, false, false, null, null,
   'none', null, null,
   'Livestock Department KP', 'government dept',
