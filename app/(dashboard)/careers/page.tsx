@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import { createClient } from '@/lib/supabase/server'
 import { formatDate } from '@/lib/utils'
 import type { Job, SalaryBenchmark, ConsultingFirm } from '@/lib/types/database'
+import { CareersList } from './careers-list'
 
 export const metadata: Metadata = { title: 'Browse Careers' }
 
@@ -54,48 +55,15 @@ export default async function CareersPage() {
 
       <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
         {/* Jobs */}
-        <div className="lg:col-span-3 space-y-3">
-          <h2 className="text-sm font-bold text-slate uppercase tracking-wide">Open Positions</h2>
+        <div className="lg:col-span-3">
+          <h2 className="text-sm font-bold text-slate uppercase tracking-wide mb-3">Open Positions</h2>
           {jobs.length === 0 ? (
             <div className="rounded-xl border border-dashed border-silver bg-card p-8 text-center">
               <div className="text-3xl mb-2">💼</div>
               <p className="text-sm text-ash">Scrapers will populate jobs from ReliefWeb, UN Jobs, and DevNetJobs</p>
             </div>
           ) : (
-            jobs.map(job => (
-              <div key={job.id} className="rounded-xl border border-silver bg-card p-4 hover:shadow-sm transition-shadow">
-                <div className="flex items-start gap-3">
-                  <div className="h-9 w-9 rounded-lg bg-pine flex items-center justify-center text-white font-bold text-sm shrink-0">
-                    {job.organisation.charAt(0)}
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2 flex-wrap mb-0.5">
-                      <span className="font-semibold text-sm text-ink">{job.title}</span>
-                      {job.seniority && (
-                        <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded ${SENIORITY_COLORS[job.seniority] ?? 'bg-fog text-ash'}`}>
-                          {job.seniority}
-                        </span>
-                      )}
-                    </div>
-                    <div className="text-xs text-ash flex flex-wrap gap-2">
-                      <span className="font-medium text-slate">{job.organisation}</span>
-                      {job.location && <span>· {job.location}</span>}
-                      {job.sector && <span>· {job.sector}</span>}
-                      {job.salary_label && <span className="font-semibold text-pine">· {job.salary_label}</span>}
-                    </div>
-                    {job.deadline && (
-                      <div className="text-xs text-ash mt-1">Deadline: {formatDate(job.deadline)}</div>
-                    )}
-                    {job.apply_url && (
-                      <a href={job.apply_url} target="_blank" rel="noopener noreferrer"
-                        className="mt-1.5 inline-flex items-center gap-1 text-xs text-pine hover:underline font-medium">
-                        Apply ↗
-                      </a>
-                    )}
-                  </div>
-                </div>
-              </div>
-            ))
+            <CareersList jobs={jobs} />
           )}
         </div>
 

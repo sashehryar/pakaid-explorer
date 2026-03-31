@@ -51,10 +51,13 @@ export function Header({ email, fullName, tier }: HeaderProps) {
       </div>
 
       <div className="flex items-center gap-2 ml-auto">
-        {/* Tier badge */}
-        <span className={cn('text-[11px] font-bold px-2 py-0.5 rounded-full', TIER_COLORS[tier])}>
+        {/* Tier badge — links to upgrade if free/pro, to profile if institutional */}
+        <a
+          href={tier === 'institutional' ? '/admin' : '/upgrade'}
+          className={cn('text-[11px] font-bold px-2 py-0.5 rounded-full cursor-pointer hover:opacity-80 transition-opacity', TIER_COLORS[tier])}
+        >
           {TIER_LABELS[tier]}
-        </span>
+        </a>
 
         {/* Notifications */}
         <button className="relative rounded-full p-1.5 hover:bg-fog transition-colors">

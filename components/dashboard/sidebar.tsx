@@ -8,7 +8,7 @@ import {
   Activity, ShoppingBag, Newspaper, Globe2, Brain,
   AlertTriangle, Copy, Briefcase, Users, BarChart3,
   Shield, Settings, ChevronRight, Database, Clock,
-  Kanban, Trophy, TrendingUp, Handshake, ClipboardCheck,
+  Kanban, Trophy, TrendingUp, Handshake, ClipboardCheck, FileEdit,
 } from 'lucide-react'
 
 interface NavItem {
@@ -90,7 +90,8 @@ function NavLink({ item, userTier }: { item: NavItem; userTier: UserTier }) {
 
 export function Sidebar({ userTier, isAdmin }: SidebarProps) {
   const pathname = usePathname()
-  const firmsExpanded = pathname.startsWith('/firms')
+  // Show firms sub-nav for institutional users always, or when navigating within /firms
+  const firmsExpanded = userTier === 'institutional' || pathname.startsWith('/firms')
 
   return (
     <aside className="flex h-full w-[220px] shrink-0 flex-col bg-forest border-r border-white/10">
@@ -145,6 +146,7 @@ export function Sidebar({ userTier, isAdmin }: SidebarProps) {
             </p>
             <NavLink item={{ href: '/admin', label: 'Admin Panel', icon: Settings }} userTier={userTier} />
             <div className="ml-3 mt-0.5 border-l border-white/10 pl-2 space-y-0.5">
+              <NavLink item={{ href: '/admin/content',  label: 'Content',  icon: FileEdit }} userTier={userTier} />
               <NavLink item={{ href: '/admin/users',    label: 'Users',    icon: Users    }} userTier={userTier} />
               <NavLink item={{ href: '/admin/scrapers', label: 'Scrapers', icon: Clock    }} userTier={userTier} />
               <NavLink item={{ href: '/admin/data',     label: 'Data',     icon: Database }} userTier={userTier} />

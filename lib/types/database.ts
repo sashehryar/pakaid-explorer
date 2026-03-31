@@ -7,6 +7,10 @@ export type IMFStatus = 'green' | 'amber' | 'red'
 export type FirmTrend = 'Growing' | 'Stable' | 'Contracting'
 export type ScraperStatus = 'healthy' | 'failing' | 'disabled' | 'running'
 export type PsdpRisk = 'low' | 'medium' | 'high'
+export type ImplementationStage = 'pre_award' | 'mobilization' | 'early_implementation' | 'mid_implementation' | 'completion' | 'post_completion' | 'suspended' | 'cancelled'
+export type SchemeRiskLevel = 'low' | 'medium' | 'high' | 'critical'
+export type OpportunityType = 'ta_opportunity' | 'supervision' | 'monitoring_evaluation' | 'implementation' | 'none'
+export type PsdpSource = 'federal_psdp' | 'provincial_adp' | 'special_program'
 export type BidStage = 'opportunity_id' | 'go_no_go' | 'teaming' | 'writing' | 'review' | 'submitted' | 'awarded' | 'lost'
 export type BidPriority = 'low' | 'medium' | 'high' | 'critical'
 export type TaskStatus = 'open' | 'in_progress' | 'done' | 'blocked'
@@ -207,6 +211,72 @@ export interface PsdpItem {
   created_at: string
 }
 
+export interface PsdpScheme {
+  id: string
+  scheme_id: string | null
+  title: string
+  ministry: string | null
+  executing_agency: string | null
+  province: string | null
+  district: string | null
+  sector: string | null
+  sub_sector: string | null
+  source: PsdpSource
+  fiscal_year: string | null
+
+  allocation_bn: number | null
+  revised_allocation_bn: number | null
+  released_bn: number | null
+  utilized_bn: number | null
+  execution_pct: number | null
+  physical_progress_pct: number | null
+  progress_variance: number | null
+
+  start_date: string | null
+  original_end_date: string | null
+  revised_end_date: string | null
+  is_time_overrun: boolean
+  extension_count: number
+
+  implementation_stage: ImplementationStage
+  risk_level: SchemeRiskLevel
+  is_slow_moving: boolean
+  is_revised: boolean
+  is_under_utilized: boolean
+  warning_signals: string[] | null
+
+  is_donor_linked: boolean
+  donor_name: string | null
+  donor_loan_pct: number | null
+  is_ppp: boolean
+
+  implementer: string | null
+  implementer_type: string | null
+  implementer_note: string | null
+
+  opportunity_type: OpportunityType
+  opportunity_window: string | null
+  ta_value_estimate_m: number | null
+
+  donor_perspective: string | null
+  firm_perspective: string | null
+  implementer_perspective: string | null
+
+  beneficiary_count: number | null
+  coverage_area_km2: number | null
+  geographic_note: string | null
+
+  prev_year_allocation_bn: number | null
+  national_sector_share: number | null
+  province_rank: number | null
+
+  source_url: string | null
+  last_verified_at: string | null
+  featured: boolean
+  created_at: string
+  updated_at: string
+}
+
 export interface RegulatoryEntry {
   id: string
   category: string
@@ -337,6 +407,7 @@ export interface Database {
       salary_benchmarks: { Row: SalaryBenchmark; Insert: Partial<SalaryBenchmark>; Update: Partial<SalaryBenchmark> }
       consulting_firms: { Row: ConsultingFirm; Insert: Partial<ConsultingFirm>; Update: Partial<ConsultingFirm> }
       psdp_items: { Row: PsdpItem; Insert: Partial<PsdpItem>; Update: Partial<PsdpItem> }
+      psdp_schemes: { Row: PsdpScheme; Insert: Partial<PsdpScheme>; Update: Partial<PsdpScheme> }
       regulatory_entries: { Row: RegulatoryEntry; Insert: Partial<RegulatoryEntry>; Update: Partial<RegulatoryEntry> }
       scraper_logs: { Row: ScraperLog; Insert: Partial<ScraperLog>; Update: Partial<ScraperLog> }
       bid_pipeline: { Row: BidPipeline; Insert: Partial<BidPipeline>; Update: Partial<BidPipeline> }
