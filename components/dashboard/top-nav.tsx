@@ -14,7 +14,7 @@ interface NavTab {
   href: string
   label: string
   shortLabel: string
-  Icon: React.ComponentType<{ size?: number; className?: string; 'aria-hidden'?: boolean | 'true' | 'false' }>
+  Icon: React.ComponentType<{ size?: number; className?: string; style?: React.CSSProperties; 'aria-hidden'?: boolean | 'true' | 'false' }>
   tier: UserTier | 'free'
 }
 
