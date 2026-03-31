@@ -1,0 +1,379 @@
+version: "1.0"
+# Canonical source of truth for PakAid Explorer data integrity.
+# Migrations 0005–0007 and tests/__tests__/canonical-data.test.ts reference this file.
+
+# ── Donors ────────────────────────────────────────────────────────────────────
+donors:
+  # Bilateral
+  - { name: "USAID",                          type: "Bilateral" }
+  - { name: "FCDO",                           type: "Bilateral" }
+  - { name: "JICA",                           type: "Bilateral" }
+  - { name: "AusAID",                         type: "Bilateral" }
+  - { name: "GIZ",                            type: "Bilateral" }
+  - { name: "Global Affairs Canada",          type: "Bilateral" }
+  - { name: "Netherlands Embassy Pakistan",   type: "Bilateral" }
+  - { name: "Norway NORAD",                   type: "Bilateral" }
+  - { name: "Switzerland SDC",                type: "Bilateral" }
+  - { name: "China CPEC Export Credit",       type: "Bilateral" }
+  - { name: "Saudi Arabia KSRelief",          type: "Bilateral" }
+  - { name: "Kuwait Fund",                    type: "Bilateral" }
+  - { name: "Turkey TIKA",                    type: "Bilateral" }
+  - { name: "South Korea KOICA",              type: "Bilateral" }
+  - { name: "Italy AICS",                     type: "Bilateral" }
+  - { name: "France AFD",                     type: "Bilateral" }
+  - { name: "Germany KfW",                    type: "Bilateral" }
+  # MDBs
+  - { name: "World Bank",                     type: "MDB" }
+  - { name: "World Bank IDA",                 type: "MDB" }
+  - { name: "World Bank IBRD",                type: "MDB" }
+  - { name: "Asian Development Bank",         type: "MDB" }
+  - { name: "IMF",                            type: "MDB" }
+  - { name: "IFAD",                           type: "MDB" }
+  - { name: "Islamic Development Bank",       type: "MDB" }
+  - { name: "AIIB",                           type: "MDB" }
+  - { name: "OPEC Fund",                      type: "MDB" }
+  # EU/European
+  - { name: "European Union",                 type: "Bilateral" }
+  - { name: "European Commission",            type: "Bilateral" }
+  # UN Agencies
+  - { name: "UNDP",                           type: "UN" }
+  - { name: "UNICEF",                         type: "UN" }
+  - { name: "UNFPA",                          type: "UN" }
+  - { name: "WHO",                            type: "UN" }
+  - { name: "WFP",                            type: "UN" }
+  - { name: "UNESCO",                         type: "UN" }
+  - { name: "UNRWA",                          type: "UN" }
+  - { name: "FAO",                            type: "UN" }
+  - { name: "UN Habitat",                     type: "UN" }
+  - { name: "UNDCP",                          type: "UN" }
+  # Private Foundations
+  - { name: "Bill and Melinda Gates Foundation", type: "Private" }
+  - { name: "Rockefeller Foundation",         type: "Private" }
+  - { name: "Ford Foundation",                type: "Private" }
+  - { name: "Aga Khan Foundation",            type: "Private" }
+  - { name: "The Asia Foundation",            type: "Private" }
+  - { name: "Acumen Fund",                    type: "Private" }
+  - { name: "Friedrich Ebert Stiftung",       type: "Private" }
+  - { name: "Friedrich Naumann Stiftung",     type: "Private" }
+  # Climate Finance
+  - { name: "Green Climate Fund via NRSP",    type: "Climate" }
+  - { name: "GGGI",                           type: "Climate" }
+  # Technical / Research
+  - { name: "WaterAid",                       type: "Private" }
+  - { name: "ACIAR",                          type: "Bilateral" }
+  - { name: "IWMI",                           type: "Private" }
+  - { name: "Pakistan Science Foundation",    type: "Private" }
+  # Pakistan Corporate / Philanthropic
+  - { name: "PepsiCo Foundation",             type: "Private" }
+  - { name: "Unilever Pakistan",              type: "Private" }
+  - { name: "Engro Foundation",               type: "Private" }
+  - { name: "Pakistan Centre for Philanthropy", type: "Private" }
+  - { name: "Rangoonwala Foundation",         type: "Private" }
+  - { name: "Infaq Foundation",               type: "Private" }
+  - { name: "Edhi Foundation",                type: "Private" }
+  - { name: "Kashf Foundation",               type: "Private" }
+  - { name: "Trust for Voluntary Organisations (TVO)", type: "Private" }
+  - { name: "Allied Bank Foundation",         type: "Private" }
+  - { name: "Al Baraka Bank Pakistan",        type: "Private" }
+  - { name: "ICI Pakistan",                   type: "Private" }
+  - { name: "Nestle Pakistan",                type: "Private" }
+  - { name: "Telenor Pakistan",               type: "Private" }
+  - { name: "JMWM Hussain Foundation",        type: "Private" }
+  - { name: "Zia Ul Ummah Foundation",        type: "Private" }
+  - { name: "Karandaaz",                      type: "Private" }
+
+# ── Consulting Firms ──────────────────────────────────────────────────────────
+firms:
+  # Existing (seeded in 0002)
+  - { name: "Palladium Group",                type: "Consulting" }
+  - { name: "DAI Global",                     type: "Consulting" }
+  - { name: "Adam Smith International",       type: "Consulting" }
+  - { name: "GIZ Pakistan",                   type: "Consulting" }
+  - { name: "OPM",                            type: "Consulting" }
+  - { name: "LEAD Pakistan",                  type: "Research" }
+  - { name: "Tetra Tech",                     type: "Consulting" }
+  # Extended (added in 0007)
+  - { name: "AAN Associates",                 type: "Consulting" }
+  - { name: "Raasta Development Consultants", type: "Consulting" }
+  - { name: "Global Impact Management Consulting", type: "Consulting" }
+  - { name: "CERP",                           type: "Research" }
+  - { name: "Project Procurement International (PPI)", type: "Consulting" }
+  - { name: "NESPAK",                         type: "Engineering" }
+  - { name: "AASA Consulting",                type: "Consulting" }
+  - { name: "RSPN",                           type: "Local NGO" }
+  - { name: "Aurat Foundation",               type: "Local NGO" }
+  - { name: "Akhuwat Foundation",             type: "Local NGO" }
+  - { name: "ActionAid Pakistan",             type: "INGO" }
+  - { name: "FHRI",                           type: "Local NGO" }
+  - { name: "PIDS",                           type: "Local NGO" }
+  - { name: "Jaan Pakistan",                  type: "Local NGO" }
+  - { name: "SHDWF",                          type: "Local NGO" }
+  - { name: "Delivery Associates",            type: "Consulting" }
+  - { name: "Dalberg",                        type: "Consulting" }
+  - { name: "Kearney",                        type: "Consulting" }
+  - { name: "McKinsey",                       type: "Consulting" }
+  - { name: "Acasus",                         type: "Consulting" }
+  - { name: "Impetus Advisory Group",         type: "Consulting" }
+  - { name: "Associates in Development (AiD)", type: "Consulting" }
+  - { name: "VTT Global",                     type: "Consulting" }
+  - { name: "Semiotics Consultants",          type: "Research" }
+  - { name: "Trust Consultancy & Development", type: "Consulting" }
+  - { name: "HIVE Pakistan",                  type: "Consulting" }
+  - { name: "National Development Consultants (NDC)", type: "Engineering" }
+  - { name: "Osmani & Company",               type: "Engineering" }
+  - { name: "EA Consulting",                  type: "Engineering" }
+  - { name: "Mott MacDonald Pakistan",        type: "Engineering" }
+  - { name: "Bridge ESG",                     type: "Consulting" }
+  - { name: "Allied Consultants",             type: "Consulting" }
+  - { name: "Mera Maan",                      type: "Consulting" }
+  - { name: "Sphere Consulting",              type: "Consulting" }
+  - { name: "Pakistan Poverty Alleviation Fund (PPAF)", type: "Local NGO" }
+  - { name: "Pakistan Centre for Philanthropy (PCP)", type: "Local NGO" }
+  - { name: "Reenergia",                      type: "Consulting" }
+  - { name: "GlowfishLabs",                   type: "Consulting" }
+  - { name: "Rethink Carbon",                 type: "Consulting" }
+  - { name: "I-SAPS",                         type: "Research" }
+  - { name: "Code for Pakistan",              type: "Local NGO" }
+  - { name: "LMKT",                           type: "Consulting" }
+  - { name: "Engineering Consultancy Services Punjab (ECSP)", type: "Engineering" }
+  - { name: "APEX Consulting",                type: "Consulting" }
+  - { name: "Together Social Venture Capital", type: "Consulting" }
+  - { name: "Professionals in Development Consulting (PIDC)", type: "Consulting" }
+  - { name: "dev~consult",                    type: "Consulting" }
+  - { name: "PRIDE Consulting",               type: "Consulting" }
+  - { name: "Social Policy and Development Centre (SPDC)", type: "Research" }
+  - { name: "Sarhad Rural Support Programme (SRSP)", type: "Local NGO" }
+  - { name: "Glow Consultants",               type: "Consulting" }
+  - { name: "Innovative Development Strategies (IDS)", type: "Consulting" }
+
+# ── RSS Feeds ─────────────────────────────────────────────────────────────────
+rss_feeds:
+  # Pakistan-Specific (priority)
+  - { name: "Tribune Economy",          url: "https://tribune.com.pk/rss",                                         category: "Pakistan-Specific",        pakistan_priority: true }
+  - { name: "UNDP Pakistan",            url: "https://www.undp.org/pakistan/news/rss",                             category: "Pakistan-Specific",        pakistan_priority: true }
+  - { name: "PBS Stats",                url: "https://www.pbs.gov.pk/rss",                                         category: "Pakistan-Specific",        pakistan_priority: true }
+  - { name: "SBP Pakistan",             url: "https://www.sbp.org.pk/rss",                                         category: "Economic Development",     pakistan_priority: true }
+  - { name: "DevAid Tenders",           url: "https://developmentaid.org/api/frontend/tender/rss",                 category: "Pakistan-Specific",        pakistan_priority: true }
+  # International Development
+  - { name: "From Poverty to Power",    url: "https://frompoverty.oxfam.org.uk/feed",                              category: "International Development", pakistan_priority: false }
+  - { name: "IDEAS",                    url: "https://ideas-global.org/feed",                                       category: "International Development", pakistan_priority: false }
+  - { name: "IDRC",                     url: "https://www.idrc-crdi.ca/en/news/rss",                               category: "International Development", pakistan_priority: false }
+  - { name: "USAID",                    url: "https://www.usaid.gov/rss",                                           category: "International Development", pakistan_priority: false }
+  - { name: "CGD",                      url: "https://www.cgdev.org/page/rss",                                     category: "International Development", pakistan_priority: false }
+  # Economic Development
+  - { name: "UN Economic Development",  url: "https://news.un.org/feed/subscribe/en/news/topic/economic-development/feed/rss.xml", category: "Economic Development", pakistan_priority: false }
+  - { name: "Developing Economics",     url: "https://developingeconomics.org/feed",                                category: "Economic Development",     pakistan_priority: false }
+  - { name: "IEDC",                     url: "https://www.iedconline.org/blog/rss",                                 category: "Economic Development",     pakistan_priority: false }
+  # Aid/Socio-Econ
+  - { name: "UN Humanitarian",          url: "https://news.un.org/en/rss",                                         category: "Aid/Socio-Econ",           pakistan_priority: false }
+  # Global Funds
+  - { name: "Global Fund",              url: "https://www.theglobalfund.org/en/site/rss/latest",                   category: "Global Funds",             pakistan_priority: false }
+  - { name: "Gavi Vaccines Work",       url: "https://www.gavi.org/vaccineswork/rss.xml",                          category: "Global Funds",             pakistan_priority: false }
+  - { name: "GPE Education",            url: "https://www.globalpartnership.org/rss.xml",                          category: "Global Funds",             pakistan_priority: false }
+  - { name: "World Bank PSD Blog",      url: "https://feeds.feedburner.com/PSDBlog",                               category: "Global Funds",             pakistan_priority: false }
+  - { name: "ADB",                      url: "https://www.adb.org/rss",                                            category: "Global Funds",             pakistan_priority: false }
+  # Climate
+  - { name: "Yale Climate Connections", url: "https://yaleclimateconnections.org/feed",                            category: "Climate",                  pakistan_priority: false }
+  - { name: "Nature Climate Change",    url: "https://www.nature.com/nclimate.rss",                               category: "Climate",                  pakistan_priority: false }
+  - { name: "PBL Climate Policy",       url: "https://www.pbl.nl/en/feed/topic/16/article/rss.xml",               category: "Climate",                  pakistan_priority: false }
+  # Health
+  - { name: "Global Fund News",         url: "https://www.theglobalfund.org/en/site/rss/news",                    category: "Health",                   pakistan_priority: false }
+  - { name: "Gavi Releases",            url: "https://www.gavi.org/rss/news",                                      category: "Health",                   pakistan_priority: false }
+  # Governance
+  - { name: "UNDP Governance",          url: "https://www.undp.org/rss/governance",                                category: "Governance/Reforms",       pakistan_priority: false }
+  # Social Protection
+  - { name: "DSS Australia",            url: "https://www.dss.gov.au/news/rss",                                    category: "Social Protection",        pakistan_priority: false }
+  # Poverty
+  - { name: "CARE Fighting Poverty",    url: "https://www.care.org/rss",                                           category: "Poverty",                  pakistan_priority: false }
+  - { name: "Food for the Hungry",      url: "https://www.fh.org/blog/feed",                                       category: "Poverty",                  pakistan_priority: false }
+  - { name: "Spotlight on Poverty",     url: "https://www.spotlightonpoverty.org/rss",                             category: "Poverty",                  pakistan_priority: false }
+  # Population
+  - { name: "Demotrends",               url: "https://www.demotrends.org/feed",                                    category: "Population",               pakistan_priority: false }
+  - { name: "Overpopulation Project",   url: "https://overpopulation-project.com/blog/feed",                       category: "Population",               pakistan_priority: false }
+  # Education
+  - { name: "GEM Report UNESCO",        url: "https://world-education-blog.org/feed",                              category: "Education",                pakistan_priority: false }
+  - { name: "Edutopia",                 url: "https://www.edutopia.org/feed",                                      category: "Education",                pakistan_priority: false }
+  - { name: "US Dept Ed Blog",          url: "https://blog.ed.gov/feed",                                           category: "Education",                pakistan_priority: false }
+  # Democracy
+  - { name: "Democracy in Peril",       url: "https://digitalcommons.usf.edu/istc/feed",                          category: "Democracy",                pakistan_priority: false }
+  # Sustainability
+  - { name: "PBL Sustainable Dev",      url: "https://www.pbl.nl/en/feed/topic/21/article/rss.xml",               category: "Sustainability",           pakistan_priority: false }
+  - { name: "Sustainable Communities",  url: "https://digitalcommons.usm.maine.edu/sustainable_communities/feed", category: "Sustainability",           pakistan_priority: false }
+  # Gender Equality
+  - { name: "UN Women",                 url: "https://www.unwomen.org/en/news-stories/rss",                        category: "Gender Equality",          pakistan_priority: false }
+  # Human Rights
+  - { name: "Human Rights Watch",       url: "https://www.hrw.org/rss",                                            category: "Human Rights",             pakistan_priority: false }
+  # Peace/Security
+  - { name: "UN Peacekeeping",          url: "https://peacekeeping.un.org/rss",                                    category: "Peace/Security",           pakistan_priority: false }
+
+# ── Sectors ───────────────────────────────────────────────────────────────────
+sectors:
+  - name: "Health"
+    slug: "health"
+    sdg_aligned: true
+    sub_sectors:
+      - { name: "Reproductive Health",                   slug: "reproductive-health" }
+      - { name: "Maternal and Child Health",             slug: "maternal-child-health" }
+      - { name: "Nutrition",                             slug: "nutrition" }
+      - { name: "WASH in Health",                        slug: "wash-in-health" }
+      - { name: "Mental Health",                         slug: "mental-health" }
+      - { name: "Epidemiology and Disease Control",      slug: "epidemiology-disease-control" }
+      - { name: "Primary Health Care",                   slug: "primary-health-care" }
+
+  - name: "Education"
+    slug: "education"
+    sdg_aligned: true
+    sub_sectors:
+      - { name: "Foundational Learning",                 slug: "foundational-learning" }
+      - { name: "STEM Education",                        slug: "stem-education" }
+      - { name: "Higher Education",                      slug: "higher-education" }
+      - { name: "Technical and Vocational Education and Training", slug: "tvet" }
+      - { name: "Early Childhood Development",           slug: "early-childhood-development" }
+      - { name: "Teacher Training",                      slug: "teacher-training" }
+      - { name: "Education Finance",                     slug: "education-finance" }
+
+  - name: "Governance"
+    slug: "governance"
+    sdg_aligned: true
+    sub_sectors:
+      - { name: "Public Administration",                 slug: "public-administration" }
+      - { name: "Anti-Corruption",                       slug: "anti-corruption" }
+      - { name: "Parliamentary Support",                 slug: "parliamentary-support" }
+      - { name: "Decentralisation",                      slug: "decentralisation" }
+      - { name: "Justice and Rule of Law",               slug: "justice-rule-of-law" }
+      - { name: "Electoral Processes",                   slug: "electoral-processes" }
+
+  - name: "Climate"
+    slug: "climate"
+    sdg_aligned: true
+    sub_sectors:
+      - { name: "Climate Adaptation",                    slug: "climate-adaptation" }
+      - { name: "Climate Mitigation",                    slug: "climate-mitigation" }
+      - { name: "Disaster Risk Reduction",               slug: "disaster-risk-reduction" }
+      - { name: "Loss and Damage",                       slug: "loss-and-damage" }
+
+  - name: "Energy"
+    slug: "energy"
+    sdg_aligned: true
+    sub_sectors:
+      - { name: "Renewable Energy",                      slug: "renewable-energy" }
+      - { name: "Energy Efficiency",                     slug: "energy-efficiency" }
+      - { name: "Energy Access",                         slug: "energy-access" }
+      - { name: "Transmission and Distribution",         slug: "transmission-distribution" }
+
+  - name: "Infrastructure"
+    slug: "infrastructure"
+    sdg_aligned: true
+    sub_sectors:
+      - { name: "Transport",                             slug: "transport" }
+      - { name: "Urban Infrastructure",                  slug: "urban-infrastructure" }
+      - { name: "Housing",                               slug: "housing" }
+      - { name: "Digital Infrastructure",                slug: "digital-infrastructure" }
+
+  - name: "Rural Development"
+    slug: "rural-development"
+    sdg_aligned: true
+    sub_sectors:
+      - { name: "Livelihoods",                           slug: "livelihoods" }
+      - { name: "Community Mobilisation",                slug: "community-mobilisation" }
+      - { name: "Village Development",                   slug: "village-development" }
+
+  - name: "Agriculture"
+    slug: "agriculture"
+    sdg_aligned: true
+    sub_sectors:
+      - { name: "Food Security",                         slug: "food-security" }
+      - { name: "Irrigation",                            slug: "irrigation" }
+      - { name: "Agricultural Value Chains",             slug: "agricultural-value-chains" }
+      - { name: "Livestock",                             slug: "livestock" }
+      - { name: "Agricultural Finance",                  slug: "agricultural-finance" }
+
+  - name: "Social Protection"
+    slug: "social-protection"
+    sdg_aligned: true
+    sub_sectors:
+      - { name: "Cash Transfers",                        slug: "cash-transfers" }
+      - { name: "Safety Nets",                           slug: "safety-nets" }
+      - { name: "Disability Inclusion",                  slug: "disability-inclusion" }
+      - { name: "Child Protection",                      slug: "child-protection" }
+
+  - name: "Public Financial Management"
+    slug: "public-financial-management"
+    sdg_aligned: true
+    sub_sectors:
+      - { name: "Tax Administration",                    slug: "tax-administration" }
+      - { name: "Budget Transparency",                   slug: "budget-transparency" }
+      - { name: "Audit and Accountability",              slug: "audit-accountability" }
+      - { name: "Debt Management",                       slug: "debt-management" }
+
+  - name: "Water and Sanitation"
+    slug: "water-and-sanitation"
+    sdg_aligned: true
+    sub_sectors:
+      - { name: "WASH",                                  slug: "wash" }
+      - { name: "Drinking Water Supply",                 slug: "drinking-water-supply" }
+      - { name: "Wastewater Management",                 slug: "wastewater-management" }
+      - { name: "Solid Waste Management",                slug: "solid-waste-management" }
+
+  - name: "Humanitarian Response"
+    slug: "humanitarian-response"
+    sdg_aligned: true
+    sub_sectors:
+      - { name: "Emergency Relief",                      slug: "emergency-relief" }
+      - { name: "Refugee Support",                       slug: "refugee-support" }
+      - { name: "Early Recovery",                        slug: "early-recovery" }
+      - { name: "Food Assistance",                       slug: "food-assistance" }
+
+  - name: "Gender Equality"
+    slug: "gender-equality"
+    sdg_aligned: true
+    sub_sectors:
+      - { name: "Women's Economic Empowerment",          slug: "womens-economic-empowerment" }
+      - { name: "Gender-Based Violence Prevention",      slug: "gbv-prevention" }
+      - { name: "Women in Politics",                     slug: "women-in-politics" }
+      - { name: "Girls' Education",                      slug: "girls-education" }
+
+  - name: "Digital Financial Inclusion"
+    slug: "digital-financial-inclusion"
+    sdg_aligned: true
+    sub_sectors:
+      - { name: "Mobile Money",                          slug: "mobile-money" }
+      - { name: "Agent Banking",                         slug: "agent-banking" }
+      - { name: "Microfinance Technology",               slug: "microfinance-technology" }
+      - { name: "Insurance Technology",                  slug: "insurance-technology" }
+
+  - name: "Digital Economy"
+    slug: "digital-economy"
+    sdg_aligned: true
+    sub_sectors:
+      - { name: "E-Commerce",                            slug: "e-commerce" }
+      - { name: "Digital Skills",                        slug: "digital-skills" }
+      - { name: "Startup Ecosystem",                     slug: "startup-ecosystem" }
+      - { name: "Digital Trade",                         slug: "digital-trade" }
+
+  - name: "ICT for All"
+    slug: "ict-for-all"
+    sdg_aligned: true
+    sub_sectors:
+      - { name: "Connectivity",                          slug: "connectivity" }
+      - { name: "Broadband Access",                      slug: "broadband-access" }
+      - { name: "Digital Literacy",                      slug: "digital-literacy" }
+      - { name: "Community Telecentres",                 slug: "community-telecentres" }
+
+  - name: "Civic Technology"
+    slug: "civic-technology"
+    sdg_aligned: true
+    sub_sectors:
+      - { name: "Open Data",                             slug: "open-data" }
+      - { name: "Citizen Feedback",                      slug: "citizen-feedback" }
+      - { name: "Government Portals",                    slug: "government-portals" }
+      - { name: "Public Accountability Tools",           slug: "public-accountability-tools" }
+
+  - name: "Digital Government and Public Service Delivery"
+    slug: "digital-government"
+    sdg_aligned: true
+    sub_sectors:
+      - { name: "E-Government",                          slug: "e-government" }
+      - { name: "Digital Identity",                      slug: "digital-identity" }
+      - { name: "Online Public Services",                slug: "online-public-services" }
+      - { name: "Interoperability",                      slug: "interoperability" }

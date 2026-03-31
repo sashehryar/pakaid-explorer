@@ -17,6 +17,29 @@ export type TaskStatus = 'open' | 'in_progress' | 'done' | 'blocked'
 export type EmeType = 'rfi' | 'framework' | 'forecast' | 'relationship' | 'meeting'
 export type ComplianceCategory = 'accreditation' | 'insurance' | 'framework' | 'registration' | 'certification' | 'tax' | 'legal' | 'other'
 
+export interface Sector {
+  id: string
+  name: string
+  parent_id: string | null
+  slug: string
+  sdg_aligned: boolean
+  created_at: string
+}
+
+export interface NewsFeed {
+  id: string
+  feed_name: string
+  feed_url: string
+  category: string | null
+  description: string | null
+  website: string | null
+  is_active: boolean
+  is_pakistan_priority: boolean
+  last_fetched_at: string | null
+  last_item_count: number | null
+  created_at: string
+}
+
 export interface Profile {
   id: string
   email: string | null
@@ -33,6 +56,7 @@ export interface Project {
   title: string
   donor: string
   sector: string
+  sector_id: string | null
   province: string | null
   amount_usd: number | null
   status: FundingStatus
@@ -55,6 +79,7 @@ export interface Tender {
   title: string
   donor: string
   sector: string | null
+  sector_id: string | null
   province: string | null
   value_usd: number | null
   deadline: string | null
@@ -119,6 +144,14 @@ export interface NewsArticle {
   featured: boolean
   published_at: string | null
   created_at: string
+  // New scoring + AI summary fields (nullable — added in migration 0006)
+  feed_id: string | null
+  recency_score: number | null
+  relevance_score: number | null
+  composite_score: number | null
+  what_happened: string | null
+  why_it_matters: string | null
+  potential_action: string | null
 }
 
 export interface IMFAction {
@@ -179,7 +212,7 @@ export interface SalaryBenchmark {
 export interface ConsultingFirm {
   id: string
   name: string
-  type: string                   // 'INGO' | 'Consulting' | 'Local NGO' | 'Research'
+  type: string                   // 'INGO' | 'Consulting' | 'Local NGO' | 'Research' | 'Engineering'
   trend: FirmTrend
   hiring_status: string | null
   editorial_note: string | null
@@ -191,6 +224,7 @@ export interface ConsultingFirm {
   opportunity_note: string | null
   risk_note: string | null
   website: string | null
+  sector_id: string | null
   created_at: string
 }
 
@@ -208,6 +242,7 @@ export interface PsdpItem {
   key_project: string | null
   note: string | null
   fiscal_year: string
+  sector_id: string | null
   created_at: string
 }
 
@@ -395,26 +430,28 @@ export interface ComplianceItem {
 export interface Database {
   public: {
     Tables: {
-      profiles: { Row: Profile; Insert: Partial<Profile>; Update: Partial<Profile> }
-      projects: { Row: Project; Insert: Partial<Project>; Update: Partial<Project> }
-      tenders: { Row: Tender; Insert: Partial<Tender>; Update: Partial<Tender> }
-      donors: { Row: Donor; Insert: Partial<Donor>; Update: Partial<Donor> }
-      jobs: { Row: Job; Insert: Partial<Job>; Update: Partial<Job> }
-      news_articles: { Row: NewsArticle; Insert: Partial<NewsArticle>; Update: Partial<NewsArticle> }
-      imf_actions: { Row: IMFAction; Insert: Partial<IMFAction>; Update: Partial<IMFAction> }
-      usaid_gap_programs: { Row: UsaidGapProgram; Insert: Partial<UsaidGapProgram>; Update: Partial<UsaidGapProgram> }
-      overlap_records: { Row: OverlapRecord; Insert: Partial<OverlapRecord>; Update: Partial<OverlapRecord> }
-      salary_benchmarks: { Row: SalaryBenchmark; Insert: Partial<SalaryBenchmark>; Update: Partial<SalaryBenchmark> }
-      consulting_firms: { Row: ConsultingFirm; Insert: Partial<ConsultingFirm>; Update: Partial<ConsultingFirm> }
-      psdp_items: { Row: PsdpItem; Insert: Partial<PsdpItem>; Update: Partial<PsdpItem> }
-      psdp_schemes: { Row: PsdpScheme; Insert: Partial<PsdpScheme>; Update: Partial<PsdpScheme> }
-      regulatory_entries: { Row: RegulatoryEntry; Insert: Partial<RegulatoryEntry>; Update: Partial<RegulatoryEntry> }
-      scraper_logs: { Row: ScraperLog; Insert: Partial<ScraperLog>; Update: Partial<ScraperLog> }
-      bid_pipeline: { Row: BidPipeline; Insert: Partial<BidPipeline>; Update: Partial<BidPipeline> }
-      bid_tasks: { Row: BidTask; Insert: Partial<BidTask>; Update: Partial<BidTask> }
-      contract_wins: { Row: ContractWin; Insert: Partial<ContractWin>; Update: Partial<ContractWin> }
-      eme_items: { Row: EmeItem; Insert: Partial<EmeItem>; Update: Partial<EmeItem> }
-      compliance_items: { Row: ComplianceItem; Insert: Partial<ComplianceItem>; Update: Partial<ComplianceItem> }
+      profiles:          { Row: Profile;          Insert: Partial<Profile>;          Update: Partial<Profile> }
+      projects:          { Row: Project;          Insert: Partial<Project>;          Update: Partial<Project> }
+      tenders:           { Row: Tender;           Insert: Partial<Tender>;           Update: Partial<Tender> }
+      donors:            { Row: Donor;            Insert: Partial<Donor>;            Update: Partial<Donor> }
+      jobs:              { Row: Job;              Insert: Partial<Job>;              Update: Partial<Job> }
+      news_articles:     { Row: NewsArticle;      Insert: Partial<NewsArticle>;      Update: Partial<NewsArticle> }
+      news_feeds:        { Row: NewsFeed;         Insert: Partial<NewsFeed>;         Update: Partial<NewsFeed> }
+      sectors:           { Row: Sector;           Insert: Partial<Sector>;           Update: Partial<Sector> }
+      imf_actions:       { Row: IMFAction;        Insert: Partial<IMFAction>;        Update: Partial<IMFAction> }
+      usaid_gap_programs:{ Row: UsaidGapProgram;  Insert: Partial<UsaidGapProgram>;  Update: Partial<UsaidGapProgram> }
+      overlap_records:   { Row: OverlapRecord;    Insert: Partial<OverlapRecord>;    Update: Partial<OverlapRecord> }
+      salary_benchmarks: { Row: SalaryBenchmark;  Insert: Partial<SalaryBenchmark>;  Update: Partial<SalaryBenchmark> }
+      consulting_firms:  { Row: ConsultingFirm;   Insert: Partial<ConsultingFirm>;   Update: Partial<ConsultingFirm> }
+      psdp_items:        { Row: PsdpItem;         Insert: Partial<PsdpItem>;         Update: Partial<PsdpItem> }
+      psdp_schemes:      { Row: PsdpScheme;       Insert: Partial<PsdpScheme>;       Update: Partial<PsdpScheme> }
+      regulatory_entries:{ Row: RegulatoryEntry;  Insert: Partial<RegulatoryEntry>;  Update: Partial<RegulatoryEntry> }
+      scraper_logs:      { Row: ScraperLog;       Insert: Partial<ScraperLog>;       Update: Partial<ScraperLog> }
+      bid_pipeline:      { Row: BidPipeline;      Insert: Partial<BidPipeline>;      Update: Partial<BidPipeline> }
+      bid_tasks:         { Row: BidTask;          Insert: Partial<BidTask>;          Update: Partial<BidTask> }
+      contract_wins:     { Row: ContractWin;      Insert: Partial<ContractWin>;      Update: Partial<ContractWin> }
+      eme_items:         { Row: EmeItem;          Insert: Partial<EmeItem>;          Update: Partial<EmeItem> }
+      compliance_items:  { Row: ComplianceItem;   Insert: Partial<ComplianceItem>;   Update: Partial<ComplianceItem> }
     }
     Views: Record<string, never>
     Functions: Record<string, never>
