@@ -10,20 +10,21 @@ export const metadata: Metadata = { title: 'Admin — Data Management' }
 const SUPABASE_URL = 'https://supabase.com/dashboard/project/retxfaffuawwabhcihmb/editor'
 
 const TABLES = [
-  { name: 'profiles',           label: 'Profiles'          },
-  { name: 'projects',           label: 'Projects'          },
-  { name: 'tenders',            label: 'Tenders'           },
-  { name: 'donors',             label: 'Donors'            },
-  { name: 'jobs',               label: 'Jobs'              },
-  { name: 'news_articles',      label: 'News Articles'     },
-  { name: 'news_feeds',         label: 'News Feeds'        },
-  { name: 'career_scraping_links', label: 'Career Links'  },
-  { name: 'imf_actions',        label: 'IMF Actions'       },
-  { name: 'overlap_records',    label: 'Overlap Records'   },
-  { name: 'consulting_firms',   label: 'Consulting Firms'  },
-  { name: 'psdp_items',         label: 'PSDP Items'        },
-  { name: 'sectors',            label: 'Sectors'           },
-  { name: 'scraper_logs',       label: 'Scraper Logs'      },
+  { name: 'profiles',              label: 'Profiles'         },
+  { name: 'projects',              label: 'Projects'         },
+  { name: 'tenders',               label: 'Tenders'          },
+  { name: 'donors',                label: 'Donors'           },
+  { name: 'sectors',               label: 'Sectors'          },
+  { name: 'jobs',                  label: 'Jobs'             },
+  { name: 'news_articles',         label: 'News Articles'    },
+  { name: 'news_feeds',            label: 'News Feeds'       },
+  { name: 'career_scraping_links', label: 'Career Links'     },
+  { name: 'imf_actions',           label: 'IMF Actions'      },
+  { name: 'overlap_records',       label: 'Overlap Records'  },
+  { name: 'consulting_firms',      label: 'Consulting Firms' },
+  { name: 'psdp_items',            label: 'PSDP Items'       },
+  { name: 'psdp_schemes',          label: 'PSDP Schemes'     },
+  { name: 'scraper_logs',          label: 'Scraper Logs'     },
 ] as const
 
 type TableName = typeof TABLES[number]['name']
@@ -38,7 +39,7 @@ export default async function AdminDataPage() {
 
   const admin = createAdminClient()
 
-  const [countResults, { data: feeds }, { data: careerLinks }] = await Promise.all([
+  const [countResults, { data: feeds }, { data: careerLinks }, { data: donors }, { data: sectors }] = await Promise.all([
     Promise.all(
       TABLES.map(async ({ name }) => {
         const { count, error } = await admin.from(name).select('*', { count: 'exact', head: true })
@@ -47,6 +48,8 @@ export default async function AdminDataPage() {
     ),
     admin.from('news_feeds').select('*').order('is_pakistan_priority', { ascending: false }).order('feed_name'),
     admin.from('career_scraping_links').select('*').order('category').order('name'),
+    admin.from('donors').select('id,name,type,country,active_projects,website').order('type').order('name'),
+    admin.from('sectors').select('id,name,slug,parent_id,sdg_aligned').order('parent_id', { nullsFirst: true }).order('name'),
   ])
 
   const counts: Record<TableName, number | null> = Object.fromEntries(
@@ -61,22 +64,17 @@ export default async function AdminDataPage() {
         <div>
           <h1 className="text-xl font-bold" style={{ color: 'var(--color-text-primary)' }}>Data Management</h1>
           <p className="text-sm mt-0.5" style={{ color: 'var(--color-text-secondary)' }}>
-            {totalRows.toLocaleString()} total rows · Manage feeds, career links, and data sources
+            {totalRows.toLocaleString()} total rows · Manage feeds, donors, sectors, career links
           </p>
         </div>
-        <a
-          href={SUPABASE_URL}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="inline-flex items-center gap-1.5 text-sm hover:underline"
-          style={{ color: '#055C45' }}
-        >
+        <a href={SUPABASE_URL} target="_blank" rel="noopener noreferrer"
+          className="inline-flex items-center gap-1.5 text-sm hover:underline" style={{ color: '#055C45' }}>
           Supabase Editor <ExternalLink size={13} />
         </a>
       </div>
 
       {/* Row counts grid */}
-      <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-3">
+      <div className="grid grid-cols-3 md:grid-cols-5 gap-3">
         {TABLES.map(({ name, label }) => {
           const count = counts[name]
           return (
@@ -91,10 +89,11 @@ export default async function AdminDataPage() {
         })}
       </div>
 
-      {/* Interactive management tabs */}
       <AdminDataTabs
         initialFeeds={feeds ?? []}
         initialCareerLinks={careerLinks ?? []}
+        initialDonors={donors ?? []}
+        initialSectors={sectors ?? []}
         serviceKey={process.env.SUPABASE_SERVICE_ROLE_KEY ?? ''}
       />
     </div>

@@ -305,6 +305,20 @@ export interface PsdpScheme {
   national_sector_share: number | null
   province_rank: number | null
 
+  // Added in migration 0009
+  throwforward_bn: number | null
+  cumulative_expenditure_bn: number | null
+  total_approved_cost_bn: number | null
+  completion_year: number | null
+  pc1_revision_count: number | null
+  years_in_portfolio: number | null
+  release_bn: number | null
+  opportunity_score: number | null
+  execution_stress_score: number | null
+  pslm_outcome_gap_note: string | null
+  lfs_labour_gap_note: string | null
+  macro_fit_note: string | null
+
   source_url: string | null
   last_verified_at: string | null
   featured: boolean
