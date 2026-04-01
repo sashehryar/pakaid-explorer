@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import { createClient } from '@/lib/supabase/server'
 import type { PsdpScheme } from '@/lib/types/database'
 import { PsdpDashboard } from './psdp-dashboard'
+import { PsdpOutcomeIntelligence } from './psdp-outcome-intelligence'
 
 export const metadata: Metadata = { title: 'PSDP and ADP Spend' }
 
@@ -26,10 +27,12 @@ export default async function PsdpPage() {
   return (
     <div className="space-y-6 max-w-7xl">
       <div>
-        <h1 className="text-xl font-bold text-ink">PSDP and ADP Spend</h1>
-        <p className="text-sm" style={{ color: 'var(--color-text-secondary)' }}>Compare Pakistan&#39;s Public Sector Development Programme and Annual Development Program budgets with actual execution</p>
-        <p className="text-sm text-ash mt-0.5">
-          Execution intelligence · Opportunity signals · Stakeholder views · FY2024–25
+        <h1 className="text-xl font-bold" style={{ color: 'var(--color-text-primary)' }}>PSDP and ADP Spend Intelligence</h1>
+        <p className="text-sm mt-0.5" style={{ color: 'var(--color-text-secondary)' }}>
+          Where public development money is underperforming against social and economic need — and where execution support, co-financing, and TA create highest marginal value
+        </p>
+        <p className="text-sm mt-0.5" style={{ color: 'var(--color-text-secondary)' }}>
+          Federal PSDP · Provincial ADPs (Punjab, Sindh, KP, Balochistan) · PSLM outcomes · LFS labour indicators · Economic Survey
         </p>
       </div>
 
@@ -59,6 +62,9 @@ export default async function PsdpPage() {
       ) : (
         <PsdpDashboard schemes={rows} withOpps={withOpps} />
       )}
+
+      {/* Outcome Intelligence layer — always visible */}
+      <PsdpOutcomeIntelligence />
     </div>
   )
 }

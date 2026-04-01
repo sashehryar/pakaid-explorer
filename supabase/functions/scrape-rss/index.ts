@@ -5,7 +5,7 @@ import { parse } from 'https://deno.land/x/xml@2.1.3/mod.ts'
 // ── Config ─────────────────────────────────────────────────────────────────────
 const SUPABASE_URL  = Deno.env.get('SUPABASE_URL')!
 const SERVICE_KEY   = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
-const OPENAI_KEY    = Deno.env.get('OPENAI_API_KEY')
+const GROQ_KEY      = Deno.env.get('GROQ_API_KEY')
 
 const SUMMARIZE_THRESHOLD = 0.5   // min composite_score to request AI summary
 const SUMMARIZE_MAX       = 20    // max AI calls per run (cost control)
@@ -120,16 +120,16 @@ interface AISummary {
 }
 
 async function summarize(title: string, description: string): Promise<AISummary | null> {
-  if (!OPENAI_KEY) return null
+  if (!GROQ_KEY) return null
   try {
-    const resp = await fetch('https://api.openai.com/v1/chat/completions', {
+    const resp = await fetch('https://api.groq.com/openai/v1/chat/completions', {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${OPENAI_KEY}`,
+        'Authorization': `Bearer ${GROQ_KEY}`,
         'Content-Type':  'application/json',
       },
       body: JSON.stringify({
-        model: 'gpt-4o-mini',
+        model: 'llama-3.1-8b-instant',
         temperature: 0.3,
         max_tokens: 300,
         messages: [{

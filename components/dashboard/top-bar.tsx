@@ -1,12 +1,14 @@
 'use client'
 
 import Image from 'next/image'
-import { Bell, MapPin } from 'lucide-react'
+import { Bell } from 'lucide-react'
 import { useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { useRouter } from 'next/navigation'
 import type { UserTier } from '@/lib/types/database'
 import { GlobalSearch } from './global-search'
+
+const BRAND = '#055C45'
 
 interface TopBarProps {
   email: string | null
@@ -39,34 +41,25 @@ export function TopBar({ email, fullName, tier, alertCount = 0 }: TopBarProps) {
     <header
       className="sticky top-0 z-40 flex h-14 items-center gap-3 border-b px-4 md:px-6"
       style={{
-        background: 'var(--color-surface)',
-        borderColor: 'var(--color-border-subtle)',
-        boxShadow: '0 1px 2px rgba(15,23,42,0.06)',
+        background: BRAND,
+        borderColor: 'rgba(255,255,255,0.15)',
+        boxShadow: '0 2px 8px rgba(3,54,40,0.25)',
       }}
     >
       {/* ── Logo ────────────────────────────────────────────────── */}
-      <a href="/home" className="flex shrink-0 items-center gap-2" aria-label="PakAid Explorer home">
-        {/* Show actual logo if present, fallback to icon + wordmark */}
-        <div className="relative h-8 w-8 shrink-0">
+      <a href="/home" className="flex shrink-0 items-center gap-2.5" aria-label="PakAid Explorer home">
+        <div className="relative h-9 w-9 shrink-0 overflow-hidden rounded-lg">
           <Image
             src="/brand/logo.svg"
-            alt="PakAid Explorer"
+            alt="PakAid Explorer logo"
             fill
-            sizes="32px"
+            sizes="36px"
             className="object-contain"
-            onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = 'none' }}
-          />
-          {/* Fallback icon shown when logo.svg not yet placed */}
-          <MapPin
-            size={28}
-            style={{ color: 'var(--color-brand-500)' }}
-            className="absolute inset-0"
-            aria-hidden="true"
           />
         </div>
         <span
           className="hidden font-bold sm:block text-[15px] tracking-tight"
-          style={{ color: 'var(--color-brand-500)' }}
+          style={{ color: '#ffffff' }}
         >
           PakAid Explorer
         </span>
@@ -83,11 +76,11 @@ export function TopBar({ email, fullName, tier, alertCount = 0 }: TopBarProps) {
         <button
           aria-label={`${alertCount} alerts`}
           className="relative flex h-9 w-9 items-center justify-center rounded-full transition-colors"
-          style={{ background: 'transparent' }}
-          onMouseOver={e => (e.currentTarget.style.background = 'var(--color-hover-surface)')}
-          onMouseOut={e => (e.currentTarget.style.background = 'transparent')}
+          style={{ background: 'rgba(255,255,255,0.08)' }}
+          onMouseOver={e => (e.currentTarget.style.background = 'rgba(255,255,255,0.15)')}
+          onMouseOut={e => (e.currentTarget.style.background = 'rgba(255,255,255,0.08)')}
         >
-          <Bell size={18} style={{ color: 'var(--color-text-secondary)' }} />
+          <Bell size={18} style={{ color: 'rgba(255,255,255,0.85)' }} />
           {alertCount > 0 && (
             <span
               className="absolute right-1 top-1 flex h-4 w-4 items-center justify-center rounded-full text-[10px] font-bold text-white"
@@ -105,15 +98,14 @@ export function TopBar({ email, fullName, tier, alertCount = 0 }: TopBarProps) {
             aria-haspopup="true"
             aria-expanded={menuOpen}
             aria-label="User menu"
-            className="flex h-9 w-9 items-center justify-center rounded-full text-sm font-semibold text-white transition-opacity hover:opacity-90"
-            style={{ background: 'var(--color-brand-500)' }}
+            className="flex h-9 w-9 items-center justify-center rounded-full text-sm font-semibold transition-opacity hover:opacity-90"
+            style={{ background: 'rgba(255,255,255,0.20)', color: '#ffffff' }}
           >
             {initials}
           </button>
 
           {menuOpen && (
             <>
-              {/* Click-away backdrop */}
               <div
                 className="fixed inset-0 z-40"
                 onClick={() => setMenuOpen(false)}
@@ -122,9 +114,9 @@ export function TopBar({ email, fullName, tier, alertCount = 0 }: TopBarProps) {
               <div
                 className="absolute right-0 top-11 z-50 w-56 overflow-hidden rounded-lg border py-1"
                 style={{
-                  background: 'var(--color-surface)',
+                  background: '#ffffff',
                   borderColor: 'var(--color-border-subtle)',
-                  boxShadow: '0 4px 8px rgba(15,23,42,0.08)',
+                  boxShadow: '0 4px 16px rgba(5,92,69,0.15)',
                 }}
                 role="menu"
               >
@@ -138,13 +130,12 @@ export function TopBar({ email, fullName, tier, alertCount = 0 }: TopBarProps) {
                   </p>
                   <span
                     className="mt-1.5 inline-block rounded-full px-2 py-0.5 text-[10px] font-semibold"
-                    style={{ background: 'var(--color-brand-100)', color: 'var(--color-brand-600)' }}
+                    style={{ background: 'var(--color-brand-100)', color: '#055C45' }}
                   >
                     {tierLabel[tier]}
                   </span>
                 </div>
 
-                {/* Menu items */}
                 {[
                   { label: 'Profile', href: '/profile' },
                   { label: 'Settings', href: '/settings' },
@@ -155,7 +146,7 @@ export function TopBar({ email, fullName, tier, alertCount = 0 }: TopBarProps) {
                     role="menuitem"
                     className="block px-4 py-2 text-sm transition-colors"
                     style={{ color: 'var(--color-text-primary)' }}
-                    onMouseOver={e => (e.currentTarget.style.background = 'var(--color-hover-surface)')}
+                    onMouseOver={e => (e.currentTarget.style.background = 'var(--color-surface-subtle)')}
                     onMouseOut={e => (e.currentTarget.style.background = 'transparent')}
                   >
                     {item.label}

@@ -75,12 +75,12 @@ export function TopNav({ userTier, isAdmin }: TopNavProps) {
       {/* ── Desktop Top Tab Bar ───────────────────────────────────── */}
       <nav
         aria-label="Main navigation"
-        className="hidden md:flex items-center border-b overflow-x-auto"
+        className="hidden md:flex items-center overflow-x-auto"
         style={{
-          background: 'var(--color-surface)',
-          borderColor: 'var(--color-border-subtle)',
+          background: '#055C45',
           minHeight: '44px',
           paddingLeft: '24px',
+          borderBottom: '1px solid rgba(255,255,255,0.12)',
         }}
         role="tablist"
       >

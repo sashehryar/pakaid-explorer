@@ -3,6 +3,7 @@ import { createClient } from '@/lib/supabase/server'
 import { formatUSD, daysUntil } from '@/lib/utils'
 import type { Project } from '@/lib/types/database'
 import { FundingFeed } from './funding-feed'
+import { FunderCoverage } from './funder-coverage'
 
 export const metadata: Metadata = { title: 'Aid Pipeline Monitor' }
 
@@ -68,6 +69,7 @@ export default async function FundingPage() {
       </div>
 
       <FundingFeed projects={projects} />
+      <FunderCoverage />
     </div>
   )
 }

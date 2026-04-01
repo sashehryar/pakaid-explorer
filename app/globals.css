@@ -2,30 +2,30 @@
 
 /* ================================================================
    PakAid Explorer — Design System
-   Brand palette: https://pakaid-explorer/design-tokens
+   Author: Syed Ali Shehryar
    ================================================================ */
 
 @theme inline {
 
-  /* ── Brand / Primary ──────────────────────────────────────────── */
-  --color-brand-500: #076349;   /* Primary: buttons, selected nav, key links */
-  --color-brand-600: #064c38;   /* Hover on primary */
-  --color-brand-700: #053528;   /* Active / pressed state */
-  --color-brand-400: #0b7a59;   /* Secondary actions */
-  --color-brand-300: #2a9b73;   /* Accents, progress bars */
-  --color-brand-200: #58b993;   /* Light accents */
-  --color-brand-100: #cbeadd;   /* Chip backgrounds, selected row tint */
+  /* ── Brand / Primary (Deep Green #055C45) ──────────────────── */
+  --color-brand-500: #055C45;   /* Deep Green — nav, buttons, footer, brand headings */
+  --color-brand-600: #044a38;   /* Hover on primary */
+  --color-brand-700: #033628;   /* Active / pressed state */
+  --color-brand-400: #82A290;   /* Sage Green — active states, charts, accents */
+  --color-brand-300: #9fbdaf;   /* Light sage */
+  --color-brand-200: #c5d7d1;   /* Very light sage */
+  --color-brand-100: #e6f0ed;   /* Pale green tint — chip backgrounds, selected row */
 
   /* ── Neutral / Background ─────────────────────────────────────── */
-  --color-canvas:         #f6f7f8;   /* App background */
-  --color-surface:        #ffffff;   /* Card / panel surface */
-  --color-surface-subtle: #f0f1f3;   /* Subtle panels, hover bg */
-  --color-border-subtle:  #dde0e5;
-  --color-border-strong:  #c0c4cc;
-  --color-text-primary:   #111827;
-  --color-text-secondary: #4b5563;
-  --color-text-disabled:  #9ca3af;
-  --color-divider:        #e5e7eb;
+  --color-canvas:         #ffffff;   /* Pure White — app background */
+  --color-surface:        #ffffff;   /* Pure White — card / panel surface */
+  --color-surface-subtle: #f4f6f5;   /* Off-white with green tint — hover bg */
+  --color-border-subtle:  #E3E7EA;   /* Light border */
+  --color-border-strong:  #9AA0A6;   /* Medium Grey — visible borders / dividers */
+  --color-text-primary:   #1F2937;   /* Charcoal — body text, forms */
+  --color-text-secondary: #4B5563;   /* Medium text */
+  --color-text-disabled:  #9AA0A6;   /* Medium Grey — placeholder, inactive labels */
+  --color-divider:        #E3E7EA;
 
   /* ── Semantic Status ──────────────────────────────────────────── */
   --color-success:        #15803d;
@@ -49,52 +49,52 @@
   --color-info-border:    #bfdbfe;
 
   /* ── Data Visualisation Series ────────────────────────────────── */
-  --color-series-1: #0b7a59;
-  --color-series-2: #2563eb;
-  --color-series-3: #ea580c;
-  --color-series-4: #7c3aed;
-  --color-series-5: #16a34a;
-  --color-series-6: #e11d48;
+  --color-series-1: #055C45;
+  --color-series-2: #82A290;
+  --color-series-3: #2563eb;
+  --color-series-4: #ea580c;
+  --color-series-5: #7c3aed;
+  --color-series-6: #16a34a;
   --color-series-7: #0891b2;
-  --color-series-8: #f97316;
+  --color-series-8: #e11d48;
 
   /* ── Interaction States ───────────────────────────────────────── */
   --color-focus-ring:      #1d4ed8;
-  --color-hover-primary:   #065e45;
-  --color-active-primary:  #053528;
-  --color-hover-surface:   #f3f4f6;
-  --color-selected-row:    #ecfdf3;
+  --color-hover-primary:   #044a38;
+  --color-active-primary:  #033628;
+  --color-hover-surface:   #f4f6f5;
+  --color-selected-row:    #e6f0ed;
   --color-disabled-bg:     #e5e7eb;
-  --color-disabled-text:   #9ca3af;
+  --color-disabled-text:   #9AA0A6;
 
   /* ── Dark Sidebar Variant ─────────────────────────────────────── */
-  --color-sidebar-bg:          #022c22;
-  --color-sidebar-hover:       #064e3b;
-  --color-sidebar-active:      #0f766e;
-  --color-sidebar-active-text: #ecfdf5;
-  --color-sidebar-icon:        #9ca3af;
-  --color-sidebar-icon-active: #ecfdf5;
+  --color-sidebar-bg:          #033628;
+  --color-sidebar-hover:       #055C45;
+  --color-sidebar-active:      #82A290;
+  --color-sidebar-active-text: #ffffff;
+  --color-sidebar-icon:        #9AA0A6;
+  --color-sidebar-icon-active: #ffffff;
 
   /* ── shadcn / Radix UI Semantic Aliases ───────────────────────── */
-  --color-background:              #f6f7f8;
-  --color-foreground:              #111827;
+  --color-background:              #ffffff;
+  --color-foreground:              #1F2937;
   --color-card:                    #ffffff;
-  --color-card-foreground:         #111827;
-  --color-primary:                 #076349;
+  --color-card-foreground:         #1F2937;
+  --color-primary:                 #055C45;
   --color-primary-foreground:      #ffffff;
-  --color-secondary:               #f0f1f3;
-  --color-secondary-foreground:    #111827;
-  --color-muted:                   #f0f1f3;
-  --color-muted-foreground:        #4b5563;
-  --color-accent:                  #cbeadd;
-  --color-accent-foreground:       #076349;
+  --color-secondary:               #f4f6f5;
+  --color-secondary-foreground:    #1F2937;
+  --color-muted:                   #f4f6f5;
+  --color-muted-foreground:        #4B5563;
+  --color-accent:                  #e6f0ed;
+  --color-accent-foreground:       #055C45;
   --color-destructive:             #dc2626;
   --color-destructive-foreground:  #ffffff;
-  --color-border:                  #dde0e5;
-  --color-input:                   #dde0e5;
+  --color-border:                  #E3E7EA;
+  --color-input:                   #E3E7EA;
   --color-ring:                    #1d4ed8;
   --color-popover:                 #ffffff;
-  --color-popover-foreground:      #111827;
+  --color-popover-foreground:      #1F2937;
 
   /* ── Typography ───────────────────────────────────────────────── */
   --font-sans: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
@@ -131,26 +131,25 @@ h3 { font-size: 16px; font-weight: 600; line-height: 1.4;  color: var(--color-te
 .text-body   { font-size: 14px; font-weight: 400; }
 
 /* ── Elevation / Shadows ──────────────────────────────────────────── */
-.shadow-low    { box-shadow: 0 1px 2px rgba(15, 23, 42, 0.06); }
-.shadow-medium { box-shadow: 0 4px 8px rgba(15, 23, 42, 0.08); }
+.shadow-low    { box-shadow: 0 1px 2px rgba(5, 92, 69, 0.06); }
+.shadow-medium { box-shadow: 0 4px 8px rgba(5, 92, 69, 0.10); }
 
 /* ── Card Default Style ───────────────────────────────────────────── */
 .card-default {
   background: var(--color-surface);
   border: 1px solid var(--color-border-subtle);
   border-radius: var(--radius);
-  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.06);
+  box-shadow: 0 1px 2px rgba(5, 92, 69, 0.06);
 }
 
 .card-raised {
   background: var(--color-surface);
   border: 1px solid var(--color-border-subtle);
   border-radius: var(--radius);
-  box-shadow: 0 4px 8px rgba(15, 23, 42, 0.08);
+  box-shadow: 0 4px 8px rgba(5, 92, 69, 0.10);
 }
 
 /* ── Spacing System ───────────────────────────────────────────────── */
-/* Gutters: 24px  |  Card padding: 16px  |  Element gaps: 8px */
 .gutter  { padding-left: 24px; padding-right: 24px; }
 .card-p  { padding: 16px; }
 .gap-el  { gap: 8px; }
@@ -159,23 +158,23 @@ h3 { font-size: 16px; font-weight: 600; line-height: 1.4;  color: var(--color-te
 .btn-primary {
   display: inline-flex; align-items: center; justify-content: center;
   padding: 8px 16px;
-  background: var(--color-brand-500);
+  background: #055C45;
   color: #ffffff;
   border-radius: var(--radius);
   font-size: 14px; font-weight: 500;
   border: none; cursor: pointer;
   transition: background 150ms ease;
 }
-.btn-primary:hover  { background: var(--color-hover-primary); }
-.btn-primary:active { background: var(--color-active-primary); }
+.btn-primary:hover  { background: #044a38; }
+.btn-primary:active { background: #033628; }
 .btn-primary:disabled { background: var(--color-disabled-bg); color: var(--color-disabled-text); cursor: not-allowed; }
 
 .btn-secondary {
   display: inline-flex; align-items: center; justify-content: center;
   padding: 8px 16px;
   background: transparent;
-  color: var(--color-brand-500);
-  border: 1px solid var(--color-brand-500);
+  color: #055C45;
+  border: 1px solid #055C45;
   border-radius: var(--radius);
   font-size: 14px; font-weight: 500;
   cursor: pointer;
@@ -213,7 +212,7 @@ h3 { font-size: 16px; font-weight: 600; line-height: 1.4;  color: var(--color-te
   display: inline-block;
   width: 6px; height: 6px;
   border-radius: 50%;
-  background: var(--color-brand-300);
+  background: #82A290;
   animation: pulse-dot 2s ease-in-out infinite;
 }
 
@@ -239,30 +238,30 @@ h3 { font-size: 16px; font-weight: 600; line-height: 1.4;  color: var(--color-te
 .badge-warning { background: var(--color-warning-bg); color: var(--color-warning-600); border: 1px solid var(--color-warning-border); }
 .badge-danger  { background: var(--color-danger-bg);  color: var(--color-danger-600);  border: 1px solid var(--color-danger-border); }
 .badge-info    { background: var(--color-info-bg);    color: var(--color-info-600);    border: 1px solid var(--color-info-border); }
-.badge-brand   { background: var(--color-brand-100);  color: var(--color-brand-600);   border: 1px solid var(--color-brand-200); }
+.badge-brand   { background: var(--color-brand-100);  color: #055C45;                  border: 1px solid var(--color-brand-200); }
 
-/* ── Top Navigation ───────────────────────────────────────────────── */
+/* ── Top Navigation (on Deep Green #055C45 background) ───────────── */
 .top-nav-tab {
   display: inline-flex; align-items: center; gap: 6px;
   padding: 8px 14px;
-  font-size: 14px; font-weight: 500;
-  color: var(--color-text-secondary);
+  font-size: 13px; font-weight: 500;
+  color: rgba(255, 255, 255, 0.70);
   border-bottom: 2px solid transparent;
   transition: color 150ms ease, border-color 150ms ease, background 150ms ease;
   white-space: nowrap;
   cursor: pointer;
   text-decoration: none;
 }
-.top-nav-tab:hover  { color: var(--color-brand-500); background: var(--color-hover-surface); }
+.top-nav-tab:hover  { color: #ffffff; background: rgba(255, 255, 255, 0.08); }
 .top-nav-tab.active {
-  color: var(--color-brand-500);
-  border-bottom-color: var(--color-brand-500);
-  background: var(--color-selected-row);
+  color: #ffffff;
+  border-bottom-color: #82A290;
+  background: rgba(255, 255, 255, 0.12);
   font-weight: 600;
 }
-.top-nav-tab.locked { opacity: 0.45; cursor: not-allowed; }
+.top-nav-tab.locked { opacity: 0.40; cursor: not-allowed; }
 
-/* ── Subnav (contextual secondary tabs) ──────────────────────────── */
+/* ── Subnav (contextual secondary tabs — on white background) ───── */
 .subnav-tab {
   display: inline-flex; align-items: center; gap: 4px;
   padding: 5px 12px;
@@ -277,9 +276,9 @@ h3 { font-size: 16px; font-weight: 600; line-height: 1.4;  color: var(--color-te
   text-decoration: none;
 }
 .subnav-tab:hover  { background: var(--color-surface-subtle); color: var(--color-text-primary); }
-.subnav-tab.active { background: var(--color-brand-100); color: var(--color-brand-600); border-color: var(--color-brand-200); font-weight: 600; }
+.subnav-tab.active { background: var(--color-brand-100); color: #055C45; border-color: var(--color-brand-200); font-weight: 600; }
 
-/* ── Mobile Bottom Navigation ─────────────────────────────────────── */
+/* ── Mobile Bottom Navigation (on white background) ──────────────── */
 .mobile-nav-tab {
   display: flex; flex-direction: column; align-items: center; justify-content: center;
   gap: 2px;
@@ -292,8 +291,8 @@ h3 { font-size: 16px; font-weight: 600; line-height: 1.4;  color: var(--color-te
   text-decoration: none;
   border: none; background: none;
 }
-.mobile-nav-tab:hover { color: var(--color-brand-500); }
-.mobile-nav-tab.active { color: var(--color-brand-500); }
+.mobile-nav-tab:hover { color: #055C45; }
+.mobile-nav-tab.active { color: #055C45; }
 
 /* ── Scrollbar ────────────────────────────────────────────────────── */
 ::-webkit-scrollbar { width: 6px; height: 6px; }
@@ -304,21 +303,21 @@ h3 { font-size: 16px; font-weight: 600; line-height: 1.4;  color: var(--color-te
 /* ── Dark Mode ────────────────────────────────────────────────────── */
 @media (prefers-color-scheme: dark) {
   :root {
-    --color-canvas:         #0F1D13;
-    --color-surface:        #1A2A1F;
-    --color-surface-subtle: #1f3128;
-    --color-border-subtle:  #2d4035;
-    --color-border-strong:  #3d5245;
+    --color-canvas:         #0d1f18;
+    --color-surface:        #152b22;
+    --color-surface-subtle: #1a3329;
+    --color-border-subtle:  #264d3a;
+    --color-border-strong:  #3a6652;
     --color-text-primary:   #f9fafb;
     --color-text-secondary: #d1d5db;
     --color-text-disabled:  #6b7280;
-    --color-divider:        #374151;
-    --color-background:     #0F1D13;
-    --color-card:           #1A2A1F;
+    --color-divider:        #264d3a;
+    --color-background:     #0d1f18;
+    --color-card:           #152b22;
     --color-card-foreground: #f9fafb;
-    --color-secondary:      #1f3128;
-    --color-muted:          #1f3128;
-    --color-popover:        #1A2A1F;
+    --color-secondary:      #1a3329;
+    --color-muted:          #1a3329;
+    --color-popover:        #152b22;
     --color-popover-foreground: #f9fafb;
   }
 }

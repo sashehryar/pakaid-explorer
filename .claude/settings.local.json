@@ -11,7 +11,14 @@
       "Bash(head -10 app/\\\\\\(dashboard\\\\\\)/firms/page.tsx)",
       "Bash(head -10 app/\\\\\\(dashboard\\\\\\)/firms/pipeline/page.tsx)",
       "Bash(head -10 app/\\\\\\(dashboard\\\\\\)/firms/wins/page.tsx)",
-      "Bash(head -10 app/\\\\\\(dashboard\\\\\\)/firms/market/page.tsx)"
+      "Bash(head -10 app/\\\\\\(dashboard\\\\\\)/firms/market/page.tsx)",
+      "Bash(npm install:*)",
+      "Bash(npx tsc:*)",
+      "mcp__Claude_Preview__preview_start",
+      "Bash(ls -la \"E:/OneDrive/00. Solo Consulting Business/01.Pak-Aid-Explorer/pakaid-explorer/.env\"*)",
+      "Bash(grep -r \"APIFY\\\\|apify\" 'E:/OneDrive/00. Solo Consulting Business/01.Pak-Aid-Explorer/pakaid-explorer' --include=*.ts --include=*.tsx -l)",
+      "Bash(grep -r \"APIFY_API\\\\|APIFY_TOKEN\\\\|apify_api\" 'E:/OneDrive/00. Solo Consulting Business/01.Pak-Aid-Explorer/pakaid-explorer' --include=*.ts --include=*.tsx -h)",
+      "Bash(ls \"E:/OneDrive/00. Solo Consulting Business/01.Pak-Aid-Explorer/pakaid-explorer/app/\\(dashboard\\)/admin/\")"
     ]
   }
 }
