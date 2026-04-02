@@ -3,19 +3,28 @@
 import { ComposableMap, Geographies, Geography, ZoomableGroup } from 'react-simple-maps'
 import { useState } from 'react'
 
-const GEO_URL = '/brand/pakistan-provinces.json'
+// jsDelivr CDN — PakData/GISData, all 8 provinces, property: NAME_1
+const GEO_URL = 'https://cdn.jsdelivr.net/gh/PakData/GISData@master/PAK-GeoJSON/PAK_adm1.json'
 
 const PROVINCE_NAME_MAP: Record<string, string> = {
-  'Punjab':                     'Punjab',
-  'Sindh':                      'Sindh',
-  'Khyber Pakhtunkhwa':         'KP',
-  'Balochistan':                'Balochistan',
-  'Islamabad':                  'Federal',
-  'Islamabad Capital Territory':'Federal',
-  'Azad Kashmir':               'AJK',
-  'Azad Jammu and Kashmir':     'AJK',
-  'Gilgit-Baltistan':           'GB',
-  'Gilgit Baltistan':           'GB',
+  // Modern spellings
+  'Punjab':                      'Punjab',
+  'Sindh':                       'Sindh',
+  'Khyber Pakhtunkhwa':          'KP',
+  'Balochistan':                 'Balochistan',
+  'Islamabad':                   'Federal',
+  'Islamabad Capital Territory': 'Federal',
+  'Azad Kashmir':                'AJK',
+  'Azad Jammu and Kashmir':      'AJK',
+  'Gilgit-Baltistan':            'GB',
+  'Gilgit Baltistan':            'GB',
+  // Legacy spellings used in PakData GeoJSON
+  'N.W.F.P.':                    'KP',
+  'Sind':                        'Sindh',
+  'Baluchistan':                 'Balochistan',
+  'F.C.T.':                      'Federal',
+  'Northern Areas':              'GB',
+  'F.A.T.A.':                    'KP',   // merged into KP in 2018
 }
 
 export interface PsdpProvinceRow {
