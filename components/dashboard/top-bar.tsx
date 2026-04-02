@@ -50,7 +50,7 @@ export function TopBar({ email, fullName, tier, alertCount = 0 }: TopBarProps) {
       <a href="/home" className="flex shrink-0 items-center gap-2.5" aria-label="PakAid Explorer home">
         <div className="relative h-9 w-9 shrink-0 overflow-hidden rounded-lg">
           <Image
-            src="/brand/logo.svg"
+            src="/brand/logo.png"
             alt="PakAid Explorer logo"
             fill
             sizes="36px"
