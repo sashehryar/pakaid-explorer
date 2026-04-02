@@ -34,7 +34,10 @@
       "Bash(dir \"C:\\\\Users\\\\Lenovo\\\\AppData\\\\Local\\\\Temp\\\\claude\" \" /b)",
       "Bash(sed \"s/\"\"data\"\":\"\"//;s/\"\"//\")",
       "Read(//tmp/**)",
-      "Bash(sort -k2 -rn)"
+      "Bash(sort -k2 -rn)",
+      "WebFetch(domain:github.com)",
+      "WebFetch(domain:media.githubusercontent.com)",
+      "WebFetch(domain:cdn.jsdelivr.net)"
     ]
   }
 }
