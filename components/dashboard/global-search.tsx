@@ -117,11 +117,15 @@ export function GlobalSearch() {
       {/* Trigger button */}
       <button
         onClick={() => setOpen(true)}
-        className="flex items-center gap-2 px-3 py-1.5 rounded-lg border border-silver bg-fog hover:bg-silver/30 text-ash text-xs transition-colors"
+        className="flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs transition-colors w-full"
+        style={{
+          background: '#ffffff',
+          color: '#1F2937',
+          border: '1px solid rgba(255,255,255,0.3)',
+        }}
       >
-        <Search size={12} />
-        <span>Search</span>
-        <kbd className="ml-1 px-1 py-0.5 rounded bg-white border border-silver text-[9px] font-mono">⌘K</kbd>
+        <Search size={12} style={{ color: '#6B7280' }} />
+        <span style={{ color: '#6B7280' }}>Search</span>
       </button>
 
       {/* Modal */}

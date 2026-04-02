@@ -18,7 +18,23 @@
       "Bash(ls -la \"E:/OneDrive/00. Solo Consulting Business/01.Pak-Aid-Explorer/pakaid-explorer/.env\"*)",
       "Bash(grep -r \"APIFY\\\\|apify\" 'E:/OneDrive/00. Solo Consulting Business/01.Pak-Aid-Explorer/pakaid-explorer' --include=*.ts --include=*.tsx -l)",
       "Bash(grep -r \"APIFY_API\\\\|APIFY_TOKEN\\\\|apify_api\" 'E:/OneDrive/00. Solo Consulting Business/01.Pak-Aid-Explorer/pakaid-explorer' --include=*.ts --include=*.tsx -h)",
-      "Bash(ls \"E:/OneDrive/00. Solo Consulting Business/01.Pak-Aid-Explorer/pakaid-explorer/app/\\(dashboard\\)/admin/\")"
+      "Bash(ls \"E:/OneDrive/00. Solo Consulting Business/01.Pak-Aid-Explorer/pakaid-explorer/app/\\(dashboard\\)/admin/\")",
+      "WebFetch(domain:apify.com)",
+      "WebSearch",
+      "WebFetch(domain:aimaker.substack.com)",
+      "WebFetch(domain:docs.apify.com)",
+      "Bash(netstat -ano)",
+      "Bash(findstr :3000)",
+      "Bash(taskkill /PID 5400 /F)",
+      "Bash(cmd /c \"taskkill /PID 5400 /F\")",
+      "Bash(cmd /c \"taskkill /PID 5400 /F 2>&1\")",
+      "Bash(timeout /t 2)",
+      "WebFetch(domain:raw.githubusercontent.com)",
+      "Bash(ls \"E:\\\\OneDrive\\\\00. Solo Consulting Business\\\\01.Pak-Aid-Explorer\\\\pakaid-explorer\\\\public\"\" 2>/dev/null || dir \"E:OneDrive00. Solo Consulting Business01.Pak-Aid-Explorerpakaid-explorerpublic\"\")",
+      "Bash(dir \"C:\\\\Users\\\\Lenovo\\\\AppData\\\\Local\\\\Temp\\\\claude\" \" /b)",
+      "Bash(sed \"s/\"\"data\"\":\"\"//;s/\"\"//\")",
+      "Read(//tmp/**)",
+      "Bash(sort -k2 -rn)"
     ]
   }
 }
