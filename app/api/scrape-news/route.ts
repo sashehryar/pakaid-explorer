@@ -5,10 +5,11 @@ export const runtime    = 'nodejs'
 export const maxDuration = 300
 
 const GROQ_KEY            = process.env.GROQ_API_KEY
-const SUMMARIZE_THRESHOLD = 0.5
+const SUMMARIZE_THRESHOLD = 0.15
 const SUMMARIZE_MAX       = 30
 const MAX_FEEDS_PER_RUN   = 25   // stay well inside 300 s limit
 const FETCH_CONCURRENCY   = 8    // parallel feed fetches
+const PER_SOURCE_CAP      = 5    // max items taken per feed
 
 // ── Relevance scoring keywords ────────────────────────────────────────────────
 const PAKISTAN_KW = ['pakistan', "pakistan's", 'pakistani', 'lahore', 'karachi', 'islamabad', 'peshawar', 'quetta']
@@ -46,6 +47,15 @@ function scoreRecency(pubDate: string | null): number {
   if (!pubDate) return 0.5
   const days = (Date.now() - new Date(pubDate).getTime()) / 86400000
   return Math.max(0, 1 - days / 30)
+}
+
+// ── Strip HTML helper ─────────────────────────────────────────────────────────
+function stripHtml(raw: string): string {
+  return raw
+    .replace(/<[^>]*>/g, '')
+    .replace(/\s+/g, ' ')
+    .trim()
+    .slice(0, 200)
 }
 
 // ── Types ─────────────────────────────────────────────────────────────────────
@@ -92,10 +102,12 @@ function parseRSSXML(xml: string, feedUrl: string): FeedItem[] {
     }
     if (!link) continue
 
+    const rawDescription = getTagText(raw, 'description') || getTagText(raw, 'summary') || ''
+
     items.push({
       title,
       link,
-      description: (getTagText(raw, 'description') || getTagText(raw, 'summary') || '').slice(0, 800),
+      description: stripHtml(rawDescription).slice(0, 800),
       pubDate:     getTagText(raw, 'pubDate') || getTagText(raw, 'published') || null,
       feedUrl,
     })
@@ -174,7 +186,10 @@ Content: ${description.slice(0, 600)}`,
       }),
       signal: AbortSignal.timeout(15_000),
     })
-    if (!resp.ok) return null
+    if (!resp.ok) {
+      console.error('Groq error:', resp.status, await resp.text())
+      return null
+    }
     const json = await resp.json()
     const raw: string = json.choices?.[0]?.message?.content ?? ''
     const cleaned = raw.replace(/```json?\n?/g, '').replace(/```/g, '').trim()
@@ -205,13 +220,16 @@ export async function POST(_request: Request) {
   // ── Parallel fetch ────────────────────────────────────────────────────────
   const allItems = await fetchAllFeeds(feeds)
 
-  let totalInserted   = 0
-  let totalSummarized = 0
+  let totalInserted    = 0
+  let totalSummarized  = 0
+  let feedsWithData    = 0
   const errors: string[] = []
 
   // ── Score, summarize, upsert ──────────────────────────────────────────────
   for (const feed of feeds) {
-    const items = allItems.get(feed.feed_url) ?? []
+    const rawItems = allItems.get(feed.feed_url) ?? []
+    // Apply per-source cap
+    const items = rawItems.slice(0, PER_SOURCE_CAP)
     let feedInserted = 0
 
     if (items.length === 0) {
@@ -223,6 +241,8 @@ export async function POST(_request: Request) {
       continue
     }
 
+    feedsWithData++
+
     try {
       for (const item of items) {
         if (!item.link) continue
@@ -231,6 +251,13 @@ export async function POST(_request: Request) {
         const recency   = scoreRecency(item.pubDate)
         const relevance = scoreRelevance(bodyText)
         const composite = 0.4 * recency + 0.6 * relevance
+
+        // Determine relevance_country
+        const lowerBody = bodyText.toLowerCase()
+        const isPakistan =
+          PAKISTAN_KW.some(kw => lowerBody.includes(kw)) ||
+          PROVINCE_KW.some(kw => lowerBody.includes(kw))
+        const relevanceCountry = isPakistan ? 'PK' : null
 
         let summary: AISummary | null = null
         if (composite >= SUMMARIZE_THRESHOLD && totalSummarized < SUMMARIZE_MAX) {
@@ -241,19 +268,21 @@ export async function POST(_request: Request) {
         const { error: upsertErr } = await supabase
           .from('news_articles')
           .upsert({
-            title:            item.title,
-            source:           feed.feed_name,
-            source_color:     '#055C45',
-            excerpt:          item.description.slice(0, 500),
-            url:              item.link,
-            published_at:     item.pubDate ? new Date(item.pubDate).toISOString() : null,
-            feed_id:          feed.id,
-            recency_score:    recency,
-            relevance_score:  relevance,
-            composite_score:  composite,
-            what_happened:    summary?.what_happened    ?? null,
-            why_it_matters:   summary?.why_it_matters   ?? null,
-            potential_action: summary?.potential_action ?? null,
+            title:             item.title,
+            source:            feed.feed_name,
+            source_color:      '#055C45',
+            excerpt:           stripHtml(item.description).slice(0, 200),
+            url:               item.link,
+            published_at:      item.pubDate ? new Date(item.pubDate).toISOString() : null,
+            feed_id:           feed.id,
+            recency_score:     recency,
+            relevance_score:   relevance,
+            composite_score:   composite,
+            what_happened:     summary?.what_happened    ?? null,
+            why_it_matters:    summary?.why_it_matters   ?? null,
+            potential_action:  summary?.potential_action ?? null,
+            relevance_country: relevanceCountry,
+            feed_category:     feed.category ?? null,
           }, { onConflict: 'url', ignoreDuplicates: false })
 
         if (!upsertErr) feedInserted++
@@ -292,6 +321,7 @@ export async function POST(_request: Request) {
   return NextResponse.json({
     feeds_processed:     feeds.length,
     feeds_total:         allFeeds.length,
+    feeds_with_data:     feedsWithData,
     articles_inserted:   totalInserted,
     articles_summarized: totalSummarized,
     errors,

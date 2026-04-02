@@ -47,16 +47,22 @@ export function TopBar({ email, fullName, tier, alertCount = 0 }: TopBarProps) {
       }}
     >
       {/* ── Logo ────────────────────────────────────────────────── */}
-      <a href="/home" className="flex shrink-0 items-center" aria-label="PakAid Explorer home">
-        <div className="relative h-10 w-[120px] shrink-0 overflow-hidden rounded-md bg-white">
+      <a href="/home" className="flex shrink-0 items-center gap-2" aria-label="PakAid Explorer home">
+        <div className="relative h-10 w-10 shrink-0 overflow-hidden">
           <Image
-            src="/brand/logo.png"
+            src="/brand/Logo-Nav-Icon.png"
             alt="PakAid Explorer logo"
             fill
-            sizes="120px"
-            className="object-contain p-1"
+            sizes="40px"
+            className="object-contain"
           />
         </div>
+        <span
+          className="hidden sm:block text-[15px] font-semibold tracking-tight"
+          style={{ color: '#ffffff', fontFamily: "'Poppins', 'Inter', sans-serif" }}
+        >
+          PakAid Explorer
+        </span>
       </a>
 
       {/* ── Global Search ────────────────────────────────────────── */}

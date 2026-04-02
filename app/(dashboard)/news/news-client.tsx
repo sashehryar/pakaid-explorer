@@ -8,10 +8,35 @@ import type { NewsArticle } from '@/lib/types/database'
 const CATEGORIES = ['All', 'Pakistan', 'Donors & Funders', 'Climate', 'Health', 'Governance', 'Education', 'Poverty'] as const
 type Category = typeof CATEGORIES[number]
 
-const CATEGORY_FILTER: Record<Category, (a: NewsArticle) => boolean> = {
+type NewsArticleWithCountry = NewsArticle & { relevance_country?: string | null }
+
+const CATEGORY_FILTER: Record<Category, (a: NewsArticleWithCountry) => boolean> = {
   'All':              () => true,
-  'Pakistan':         a => (a.composite_score ?? 0) >= 0.4 || (a.source?.toLowerCase().includes('pakistan') ?? false) || (a.source?.toLowerCase().includes('tribune') ?? false) || (a.source?.toLowerCase().includes('pbs') ?? false) || (a.source?.toLowerCase().includes('sbp') ?? false),
-  'Donors & Funders': a => ['undp', 'unicef', 'usaid', 'world bank', 'adb', 'gavi', 'global fund', 'gpe', 'devaid'].some(k => (a.source ?? '').toLowerCase().includes(k)),
+  'Pakistan': a => {
+    const isPakGeo = (text: string) => {
+      const t = (text ?? '').toLowerCase()
+      return ['pakistan', "pakistan's", 'pakistani', 'punjab', 'sindh', 'balochistan',
+        'khyber', 'pakhtunkhwa', 'lahore', 'karachi', 'islamabad', 'peshawar', 'quetta',
+        'gilgit', 'azad kashmir'].some(kw => t.includes(kw))
+    }
+    const EXPLICIT_PAK_SOURCES = ['Tribune Economy', 'UNDP Pakistan', 'PBS Stats',
+      'SBP Pakistan', 'DevAid Tenders']
+    return EXPLICIT_PAK_SOURCES.includes(a.source ?? '') ||
+      a.relevance_country === 'PK' ||
+      isPakGeo(a.title ?? '') ||
+      isPakGeo(a.excerpt ?? '')
+  },
+  'Donors & Funders': a => {
+    const DONOR_SOURCES = ['world bank', 'adb', 'fcdo', 'dfid', 'usaid', 'giz',
+      'jica', 'undp', 'unicef', 'unfpa', 'wfp', 'kfw', 'european', 'eu ',
+      'aga khan', 'gates', 'global fund', 'gavi', 'gpe', 'devaid']
+    const isDonorSource = DONOR_SOURCES.some(d => (a.source ?? '').toLowerCase().includes(d))
+    const isPakRelevant = ['pakistan', 'lahore', 'karachi', 'islamabad', 'punjab',
+      'sindh', 'balochistan'].some(kw =>
+      ((a.title ?? '') + ' ' + (a.excerpt ?? '')).toLowerCase().includes(kw)
+    )
+    return isDonorSource && isPakRelevant
+  },
   'Climate':          a => ['climate', 'nature', 'pbl', 'yale'].some(k => (a.source ?? '').toLowerCase().includes(k)),
   'Health':           a => ['health', 'gavi', 'global fund', 'who', 'care'].some(k => (a.source ?? '').toLowerCase().includes(k)),
   'Governance':       a => ['governance', 'undp', 'democracy', 'human rights'].some(k => (a.source ?? '').toLowerCase().includes(k)),
@@ -143,7 +168,7 @@ export function NewsClient({ articles, totalFeeds, aiSummaries, highRelevant }: 
   const [scraping, setScraping]   = useState(false)
   const [scrapeMsg, setScrapeMsg] = useState('')
 
-  const filtered = articles.filter(CATEGORY_FILTER[activeCategory])
+  const filtered = (articles as NewsArticleWithCountry[]).filter(CATEGORY_FILTER[activeCategory])
 
   async function triggerScrape() {
     setScraping(true)

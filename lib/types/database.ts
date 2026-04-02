@@ -47,6 +47,8 @@ export interface Profile {
   tier: UserTier
   role: UserRole
   organisation: string | null
+  preferred_sectors: string[]
+  preferred_provinces: string[]
   created_at: string
   updated_at: string
 }
@@ -171,6 +173,9 @@ export interface NewsArticle {
   what_happened: string | null
   why_it_matters: string | null
   potential_action: string | null
+  // Categorisation fields (added in migration 0011)
+  relevance_country: string | null
+  feed_category: string | null
 }
 
 export interface IMFAction {
