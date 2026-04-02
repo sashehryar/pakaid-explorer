@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import { useRouter } from 'next/navigation'
 import { ExternalLink, ChevronDown, ChevronUp, RefreshCw, Rss } from 'lucide-react'
 import type { NewsArticle } from '@/lib/types/database'
 
@@ -137,6 +138,7 @@ interface Props {
 }
 
 export function NewsClient({ articles, totalFeeds, aiSummaries, highRelevant }: Props) {
+  const router = useRouter()
   const [activeCategory, setActiveCategory] = useState<Category>('All')
   const [scraping, setScraping]   = useState(false)
   const [scrapeMsg, setScrapeMsg] = useState('')
@@ -145,17 +147,20 @@ export function NewsClient({ articles, totalFeeds, aiSummaries, highRelevant }: 
 
   async function triggerScrape() {
     setScraping(true)
-    setScrapeMsg('')
+    setScrapeMsg('Fetching feeds…')
     try {
       const resp = await fetch('/api/scrape-news', { method: 'POST' })
       if (resp.ok) {
         const d = await resp.json()
-        setScrapeMsg(`Done — ${d.articles_inserted} articles saved, ${d.articles_summarized} AI summaries. Reload to see updates.`)
+        const errNote = d.errors?.length ? ` (${d.errors.length} feeds failed)` : ''
+        setScrapeMsg(`Done — ${d.articles_inserted} articles saved, ${d.articles_summarized} AI summaries${errNote}. Refreshing…`)
+        router.refresh()
       } else {
-        setScrapeMsg('Scrape failed — trigger from Admin → Data → Trigger Scrape using admin credentials.')
+        const body = await resp.text()
+        setScrapeMsg(`Scrape error ${resp.status}: ${body.slice(0, 200)}`)
       }
-    } catch {
-      setScrapeMsg('Use Admin → Data → Trigger Scrape panel to run the scraper.')
+    } catch (e) {
+      setScrapeMsg(`Network error: ${e instanceof Error ? e.message : String(e)}`)
     }
     setScraping(false)
   }
