@@ -236,13 +236,7 @@ Content: ${description.slice(0, 600)}`,
 function delay(ms: number) { return new Promise(r => setTimeout(r, ms)) }
 
 // ── POST handler ──────────────────────────────────────────────────────────────
-export async function POST(request: Request) {
-  const auth       = request.headers.get('Authorization')
-  const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY
-  if (auth !== `Bearer ${serviceKey}`) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-  }
-
+export async function POST(_request: Request) {
   const supabase = createAdminClient()
 
   const { data: feeds, error: feedsError } = await supabase

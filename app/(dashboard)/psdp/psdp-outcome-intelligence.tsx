@@ -1,7 +1,17 @@
 'use client'
 
 import { useState } from 'react'
-import { ExternalLink, Target, TrendingUp, Users, BookOpen, ChevronDown, ChevronRight } from 'lucide-react'
+import { ExternalLink, Target, BookOpen, ChevronDown, ChevronRight, Sparkles, Loader2 } from 'lucide-react'
+
+interface SectorRow {
+  sector: string
+  scheme_count: number
+  total_allocation_bn: number
+  avg_execution_pct: number
+  total_throwforward_bn: number
+  avg_opportunity_score: number
+  avg_stress_score: number
+}
 
 // Sector × Indicator cross-reference
 const SECTOR_INDICATORS = [
@@ -171,9 +181,39 @@ const OPP_SCORE_FACTORS = [
   { label: 'Macro/sector priority fit from Economic Survey', weight: 25, color: '#7c3aed' },
 ]
 
-export function PsdpOutcomeIntelligence() {
-  const [openSector, setOpenSector] = useState<string | null>(null)
+interface Props {
+  sectorData?: SectorRow[]
+}
+
+export function PsdpOutcomeIntelligence({ sectorData = [] }: Props) {
+  const [openSector, setOpenSector]   = useState<string | null>(null)
   const [showSources, setShowSources] = useState(false)
+  const [narratives, setNarratives]   = useState<Record<string, string>>({})
+  const [generating, setGenerating]   = useState<Record<string, boolean>>({})
+
+  async function generateNarrative(s: typeof SECTOR_INDICATORS[number]) {
+    setGenerating(prev => ({ ...prev, [s.sector]: true }))
+    const dbRow = sectorData.find(r => r.sector.toLowerCase().includes(s.sector.toLowerCase().split('/')[0].trim()))
+    try {
+      const res = await fetch('/api/psdp-sector-narrative', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          sector:            s.sector,
+          execution_pct:     dbRow?.avg_execution_pct     ?? 0,
+          opportunity_score: dbRow?.avg_opportunity_score ?? 0,
+          stress_score:      dbRow?.avg_stress_score      ?? 0,
+          allocation_bn:     dbRow?.total_allocation_bn   ?? 0,
+          scheme_count:      dbRow?.scheme_count          ?? 0,
+          throwforward_bn:   dbRow?.total_throwforward_bn ?? 0,
+          derived_gap:       s.derivedGap,
+        }),
+      })
+      const d = await res.json() as { narrative?: string; error?: string }
+      if (d.narrative) setNarratives(prev => ({ ...prev, [s.sector]: d.narrative! }))
+    } catch { /* silent */ }
+    setGenerating(prev => ({ ...prev, [s.sector]: false }))
+  }
 
   return (
     <div className="space-y-6 mt-6">
@@ -248,6 +288,37 @@ export function PsdpOutcomeIntelligence() {
                   <div className="rounded-lg p-3" style={{ background: 'var(--color-brand-100)' }}>
                     <span className="text-xs font-bold" style={{ color: '#055C45' }}>Derived Gap Intelligence: </span>
                     <span className="text-xs" style={{ color: 'var(--color-text-primary)' }}>{s.derivedGap}</span>
+                  </div>
+
+                  {/* Groq AI narrative */}
+                  <div className="rounded-lg p-3 border" style={{ borderColor: 'var(--color-border-subtle)', background: '#fafafa' }}>
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="text-xs font-bold flex items-center gap-1.5" style={{ color: '#7c3aed' }}>
+                        <Sparkles size={11} /> AI Sector Gap Narrative
+                      </span>
+                      <button
+                        onClick={() => generateNarrative(s)}
+                        disabled={generating[s.sector]}
+                        className="flex items-center gap-1 text-[10px] font-medium px-2 py-1 rounded transition-colors"
+                        style={{
+                          background: '#7c3aed', color: '#fff',
+                          opacity: generating[s.sector] ? 0.6 : 1,
+                          cursor: generating[s.sector] ? 'not-allowed' : 'pointer',
+                        }}>
+                        {generating[s.sector]
+                          ? <><Loader2 size={10} className="animate-spin" /> Generating…</>
+                          : <><Sparkles size={10} /> Generate</>}
+                      </button>
+                    </div>
+                    {narratives[s.sector] ? (
+                      <p className="text-xs leading-relaxed" style={{ color: 'var(--color-text-primary)' }}>
+                        {narratives[s.sector]}
+                      </p>
+                    ) : (
+                      <p className="text-xs" style={{ color: 'var(--color-text-secondary)' }}>
+                        Click Generate to get a live Groq-powered gap narrative for this sector using real PSDP data.
+                      </p>
+                    )}
                   </div>
                 </div>
               )}

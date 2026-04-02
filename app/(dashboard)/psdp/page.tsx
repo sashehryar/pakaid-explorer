@@ -3,6 +3,7 @@ import { createClient } from '@/lib/supabase/server'
 import type { PsdpScheme } from '@/lib/types/database'
 import { PsdpDashboard } from './psdp-dashboard'
 import { PsdpOutcomeIntelligence } from './psdp-outcome-intelligence'
+import { PsdpProvinceMap } from './psdp-province-map'
 
 export const metadata: Metadata = { title: 'PSDP and ADP Spend' }
 
@@ -111,6 +112,9 @@ export default async function PsdpPage() {
           </div>
         ))}
       </div>
+
+      {/* Province Heatmap */}
+      {provinces.length > 0 && <PsdpProvinceMap provinces={provinces} />}
 
       {rows.length === 0 ? (
         <div className="rounded-xl border border-dashed p-12 text-center" style={{ borderColor: 'var(--color-border-subtle)' }}>
@@ -304,7 +308,7 @@ export default async function PsdpPage() {
       )}
 
       {/* Outcome Intelligence layer */}
-      <PsdpOutcomeIntelligence />
+      <PsdpOutcomeIntelligence sectorData={sectors} />
     </div>
   )
 }

@@ -129,6 +129,22 @@ export default function DuplicatesPage() {
     }
   }
 
+  // Compute donor pair co-presence from sector aggregations
+  for (const { donors } of sectorMap.values()) {
+    const donorList = [...donors]
+    for (let i = 0; i < donorList.length; i++) {
+      for (let j = i + 1; j < donorList.length; j++) {
+        const pair = [donorList[i], donorList[j]].sort().join(' + ')
+        donorPairs.set(pair, (donorPairs.get(pair) ?? 0) + 1)
+      }
+    }
+  }
+
+  // Top donor pairs by co-presence count
+  const topDonorPairs = [...donorPairs.entries()]
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, 12)
+
   const sectorRanked = [...sectorMap.values()].sort((a, b) => b.count - a.count)
   const filteredRecords = records.filter(r =>
     (!filterSector || r.sector === filterSector) &&
@@ -278,6 +294,65 @@ export default function DuplicatesPage() {
               </div>
             </div>
           </div>
+
+          {/* Province congestion */}
+          {provinceCounts.size > 0 && (
+            <div className="rounded-xl border p-4 space-y-3"
+              style={{ background: '#fff', borderColor: 'var(--color-border-subtle)' }}>
+              <div className="flex items-center gap-2">
+                <MapIcon size={15} style={{ color: '#b45309' }} />
+                <span className="text-sm font-semibold" style={{ color: 'var(--color-text-primary)' }}>Province Programme Congestion</span>
+              </div>
+              <div className="space-y-1.5">
+                {[...provinceCounts.entries()].sort((a, b) => b[1] - a[1]).map(([prov, count]) => {
+                  const max = Math.max(...provinceCounts.values())
+                  const pct = Math.round((count / max) * 100)
+                  const crowded = count >= 5
+                  return (
+                    <div key={prov} className="flex items-center gap-3">
+                      <div className="w-28 text-xs font-medium truncate" style={{ color: 'var(--color-text-primary)' }}>{prov}</div>
+                      <div className="flex-1 rounded-full h-1.5" style={{ background: '#e5e7eb' }}>
+                        <div className="h-1.5 rounded-full" style={{ width: `${pct}%`, background: crowded ? '#b45309' : '#055C45' }} />
+                      </div>
+                      <span className="text-[10px] font-bold w-12 text-right"
+                        style={{ color: crowded ? '#b45309' : '#055C45' }}>
+                        {count} prog
+                      </span>
+                    </div>
+                  )
+                })}
+              </div>
+            </div>
+          )}
+
+          {/* Donor pair co-presence */}
+          {topDonorPairs.length > 0 && (
+            <div className="rounded-xl border p-4 space-y-3"
+              style={{ background: '#fff', borderColor: 'var(--color-border-subtle)' }}>
+              <div className="flex items-center gap-2">
+                <Info size={15} style={{ color: '#7c3aed' }} />
+                <span className="text-sm font-semibold" style={{ color: 'var(--color-text-primary)' }}>Donor Pair Co-Presence</span>
+              </div>
+              <p className="text-xs" style={{ color: 'var(--color-text-secondary)' }}>
+                Donor pairs co-active in the most sectors — highest co-ordination risk and partnership potential.
+              </p>
+              <div className="space-y-1.5">
+                {topDonorPairs.map(([pair, count]) => {
+                  const maxCount = topDonorPairs[0]?.[1] ?? 1
+                  const pct = Math.round((count / maxCount) * 100)
+                  return (
+                    <div key={pair} className="flex items-center gap-3">
+                      <div className="flex-1 text-xs truncate font-medium" style={{ color: 'var(--color-text-primary)' }}>{pair}</div>
+                      <div className="w-20 rounded-full h-1.5" style={{ background: '#e5e7eb' }}>
+                        <div className="h-1.5 rounded-full" style={{ width: `${pct}%`, background: '#7c3aed' }} />
+                      </div>
+                      <span className="text-[10px] font-bold w-12 text-right" style={{ color: '#7c3aed' }}>{count} sector{count > 1 ? 's' : ''}</span>
+                    </div>
+                  )
+                })}
+              </div>
+            </div>
+          )}
 
           {/* Programme grid */}
           {filteredRecords.length > 0 && (

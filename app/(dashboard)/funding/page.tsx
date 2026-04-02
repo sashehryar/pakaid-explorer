@@ -1,19 +1,17 @@
 import type { Metadata } from 'next'
 import { createClient } from '@/lib/supabase/server'
 import { formatUSD, daysUntil } from '@/lib/utils'
-import type { Project } from '@/lib/types/database'
+import type { Project, FunderMaster } from '@/lib/types/database'
 import { FundingFeed } from './funding-feed'
 import { FunderCoverage } from './funder-coverage'
 
 export const metadata: Metadata = { title: 'Aid Pipeline Monitor' }
 
-
-
 export default async function FundingPage() {
 
   const supabase = await createClient()
 
-  const [projectsRes, statsRes] = await Promise.all([
+  const [projectsRes, statsRes, fundersRes] = await Promise.all([
     supabase
       .from('projects')
       .select('*')
@@ -22,9 +20,15 @@ export default async function FundingPage() {
     supabase
       .from('projects')
       .select('amount_usd, status', { count: 'exact' }),
+    supabase
+      .from('funders_master')
+      .select('*')
+      .order('type')
+      .order('name'),
   ])
 
-  const projects: Project[] = projectsRes.data ?? []
+  const projects: Project[]     = projectsRes.data ?? []
+  const funders: FunderMaster[] = (fundersRes.data ?? []) as FunderMaster[]
 
   // Compute stats
   const active = projects.filter(p => p.status === 'active')
@@ -69,7 +73,7 @@ export default async function FundingPage() {
       </div>
 
       <FundingFeed projects={projects} />
-      <FunderCoverage />
+      <FunderCoverage funders={funders} projects={projects} />
     </div>
   )
 }

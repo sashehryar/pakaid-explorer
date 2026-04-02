@@ -94,6 +94,25 @@ export interface Tender {
   updated_at: string
 }
 
+export interface FunderMaster {
+  id: string
+  name: string
+  type: string                   // Bilateral | Multilateral | UN | Philanthropy | Climate | Pakistan
+  status: string                 // active | partial_freeze | limited | exited
+  trend: string                  // growing | stable | shrinking
+  sectors: string[]
+  budget_label: string | null
+  signal: string | null
+  procurement_url: string | null
+  country_url: string | null
+  country: string | null
+  confidence_score: number
+  last_verified: string | null
+  portfolio_end_date: string | null
+  created_at: string
+  updated_at: string
+}
+
 export interface Donor {
   id: string
   name: string

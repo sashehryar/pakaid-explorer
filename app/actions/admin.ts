@@ -3,6 +3,15 @@
 import { revalidatePath } from 'next/cache'
 import { createClient, createAdminClient } from '@/lib/supabase/server'
 import type { UserRole, UserTier } from '@/lib/types/database'
+import {
+  scrapeReliefWebJobs,
+  scrapePPRATenders,
+  scrapeGIZProjects,
+  scrapeIATIDatastore,
+  scrapeNewsFeeds,
+  scrapeWorldBankProjects,
+  scrapeProcurementNotices,
+} from '@/lib/scraper-handlers'
 
 // ── Auth guard ────────────────────────────────────────────────────────────────
 
@@ -51,45 +60,41 @@ export async function updateUserRole(userId: string, role: UserRole) {
 
 // ── Scraper triggering ────────────────────────────────────────────────────────
 
-const SCRAPER_FUNCTION_MAP: Record<string, string> = {
-  'World Bank Projects API': 'scrape-wb',
-  'ReliefWeb Jobs':          'scrape-jobs',
-  'Dawn Business':           'scrape-news',
-  'The News Economy':        'scrape-news',
-  'WB Procurement Notices':  'scrape-tenders',
-  'ADB Procurement Notices': 'scrape-tenders',
-}
-
 export async function triggerScraper(scraperName: string): Promise<{ ok: boolean; message: string }> {
   await requireAdmin()
 
-  const fnName = SCRAPER_FUNCTION_MAP[scraperName]
-  if (!fnName) {
-    return { ok: false, message: `No edge function mapped for "${scraperName}"` }
+  let result: { ok: boolean; message: string }
+
+  switch (scraperName) {
+    case 'ReliefWeb Jobs':
+      result = await scrapeReliefWebJobs()
+      break
+    case 'PPRA Federal Tenders':
+      result = await scrapePPRATenders()
+      break
+    case 'GIZ Project Finder':
+      result = await scrapeGIZProjects()
+      break
+    case 'IATI Datastore':
+      result = await scrapeIATIDatastore()
+      break
+    case 'Dawn Business':
+    case 'The News Economy':
+      result = await scrapeNewsFeeds(scraperName)
+      break
+    case 'World Bank Projects API':
+      result = await scrapeWorldBankProjects()
+      break
+    case 'WB Procurement Notices':
+      result = await scrapeProcurementNotices('WB', scraperName)
+      break
+    case 'ADB Procurement Notices':
+      result = await scrapeProcurementNotices('ADB', scraperName)
+      break
+    default:
+      result = { ok: false, message: `No handler configured for "${scraperName}"` }
   }
 
-  const url = `https://retxfaffuawwabhcihmb.supabase.co/functions/v1/${fnName}`
-  const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-
-  try {
-    const res = await fetch(url, {
-      method: 'POST',
-      headers: {
-        Authorization: `Bearer ${anonKey}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ triggered_by: 'admin_panel' }),
-    })
-
-    if (!res.ok) {
-      const text = await res.text()
-      return { ok: false, message: `HTTP ${res.status}: ${text.slice(0, 200)}` }
-    }
-
-    revalidatePath('/admin/scrapers')
-    return { ok: true, message: `${scraperName} triggered successfully` }
-  } catch (err) {
-    const msg = err instanceof Error ? err.message : 'Unknown error'
-    return { ok: false, message: msg }
-  }
+  if (result.ok) revalidatePath('/admin/scrapers')
+  return result
 }

@@ -147,10 +147,7 @@ export function NewsClient({ articles, totalFeeds, aiSummaries, highRelevant }: 
     setScraping(true)
     setScrapeMsg('')
     try {
-      const resp = await fetch('/api/scrape-news', {
-        method: 'POST',
-        headers: { 'Authorization': `Bearer ${process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ?? ''}` },
-      })
+      const resp = await fetch('/api/scrape-news', { method: 'POST' })
       if (resp.ok) {
         const d = await resp.json()
         setScrapeMsg(`Done — ${d.articles_inserted} articles saved, ${d.articles_summarized} AI summaries. Reload to see updates.`)
