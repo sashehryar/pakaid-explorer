@@ -1,17 +1,14 @@
 import { NextResponse } from 'next/server'
 import { createAdminClient } from '@/lib/supabase/server'
 
-export const runtime = 'nodejs'
+export const runtime    = 'nodejs'
 export const maxDuration = 300
 
-const APIFY_TOKEN = process.env.APIFY_API_TOKEN
-const GROQ_KEY    = process.env.GROQ_API_KEY
-
+const GROQ_KEY            = process.env.GROQ_API_KEY
 const SUMMARIZE_THRESHOLD = 0.5
 const SUMMARIZE_MAX       = 30
-const APIFY_BATCH_SIZE    = 20
-// Apify public RSS parser actor — apify store: lukaskrivka/rss-parser
-const APIFY_RSS_ACTOR     = 'lukaskrivka~rss-parser'
+const MAX_FEEDS_PER_RUN   = 25   // stay well inside 300 s limit
+const FETCH_CONCURRENCY   = 8    // parallel feed fetches
 
 // ── Relevance scoring keywords ────────────────────────────────────────────────
 const PAKISTAN_KW = ['pakistan', "pakistan's", 'pakistani', 'lahore', 'karachi', 'islamabad', 'peshawar', 'quetta']
@@ -53,106 +50,38 @@ function scoreRecency(pubDate: string | null): number {
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 interface FeedItem {
-  title: string
-  link: string
+  title:       string
+  link:        string
   description: string
-  pubDate: string | null
-  feedUrl?: string
-}
-
-interface ApifyRSSItem {
-  title?: string
-  link?: string
-  url?: string
-  guid?: string
-  description?: string
-  summary?: string
-  content?: string
-  pubDate?: string
-  isoDate?: string
-  feedUrl?: string
-  feedTitle?: string
+  pubDate:     string | null
+  feedUrl:     string
 }
 
 interface AISummary {
-  what_happened: string
-  why_it_matters: string
+  what_happened:    string
+  why_it_matters:   string
   potential_action: string
 }
 
-// ── Apify RSS fetch ───────────────────────────────────────────────────────────
-// Calls Apify actor lukaskrivka~rss-parser synchronously.
-// Returns a map of feedUrl → array of items.
-async function fetchViaApify(
-  feedBatch: Array<{ id: string; feed_url: string; feed_name: string }>
-): Promise<Map<string, FeedItem[]>> {
-  const result = new Map<string, FeedItem[]>()
-  if (!APIFY_TOKEN || feedBatch.length === 0) return result
-
-  try {
-    const resp = await fetch(
-      `https://api.apify.com/v2/acts/${APIFY_RSS_ACTOR}/run-sync-get-dataset-items` +
-      `?token=${APIFY_TOKEN}&timeout=120&memory=256`,
-      {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          sources: feedBatch.map(f => ({ url: f.feed_url })),
-          maxItemsPerFeed: 30,
-          proxy: { useApifyProxy: true },
-        }),
-        signal: AbortSignal.timeout(130_000),
-      }
-    )
-
-    if (!resp.ok) {
-      console.error(`Apify returned ${resp.status}: ${await resp.text()}`)
-      return result
-    }
-
-    const items: ApifyRSSItem[] = await resp.json()
-
-    for (const item of items) {
-      const feedUrl = item.feedUrl ?? ''
-      const link    = item.link ?? item.url ?? item.guid ?? ''
-      if (!link) continue
-
-      const normalized: FeedItem = {
-        title:       (item.title ?? 'Untitled').slice(0, 500),
-        link,
-        description: (item.description ?? item.summary ?? item.content ?? '').slice(0, 800),
-        pubDate:     item.pubDate ?? item.isoDate ?? null,
-        feedUrl,
-      }
-
-      if (!result.has(feedUrl)) result.set(feedUrl, [])
-      result.get(feedUrl)!.push(normalized)
-    }
-  } catch (err) {
-    console.error('Apify fetch error:', err)
-  }
-
-  return result
-}
-
-// ── Direct HTTP fallback (when Apify token missing or batch fails) ────────────
+// ── RSS/Atom XML parser (no external dependency) ──────────────────────────────
 function getTagText(xml: string, tag: string): string {
-  const cdata = xml.match(new RegExp(`<${tag}[^>]*><!\\[CDATA\\[([\\s\\S]*?)\\]\\]></${tag}>`, 'i'))
+  const cdata = xml.match(new RegExp(`<${tag}[^>]*><!\\[CDATA\\[([\\s\\S]*?)\\]\\]><\/${tag}>`, 'i'))
   if (cdata) return cdata[1].trim()
-  const plain = xml.match(new RegExp(`<${tag}[^>]*>([\\s\\S]*?)</${tag}>`, 'i'))
+  const plain = xml.match(new RegExp(`<${tag}[^>]*>([\\s\\S]*?)<\/${tag}>`, 'i'))
   if (plain) return plain[1].replace(/<[^>]+>/g, '').trim()
   return ''
 }
 
 function parseRSSXML(xml: string, feedUrl: string): FeedItem[] {
   const items: FeedItem[] = []
-  const rssItems   = xml.match(/<item[\s>][\s\S]*?<\/item>/gi)   ?? []
-  const atomItems  = xml.match(/<entry[\s>][\s\S]*?<\/entry>/gi) ?? []
-  const rawItems   = rssItems.length > 0 ? rssItems : atomItems
+  const rssItems  = xml.match(/<item[\s>][\s\S]*?<\/item>/gi)   ?? []
+  const atomItems = xml.match(/<entry[\s>][\s\S]*?<\/entry>/gi) ?? []
+  const rawItems  = rssItems.length > 0 ? rssItems : atomItems
 
-  for (const raw of rawItems.slice(0, 50)) {
+  for (const raw of rawItems.slice(0, 40)) {
     const title = getTagText(raw, 'title') || 'Untitled'
-    let link    = getTagText(raw, 'link')
+
+    let link = getTagText(raw, 'link')
     if (!link) {
       const href = raw.match(/<link[^>]+href=["']([^"']+)["']/i)
       if (href) link = href[1]
@@ -162,6 +91,7 @@ function parseRSSXML(xml: string, feedUrl: string): FeedItem[] {
       if (guid) link = guid[1].trim()
     }
     if (!link) continue
+
     items.push({
       title,
       link,
@@ -173,14 +103,15 @@ function parseRSSXML(xml: string, feedUrl: string): FeedItem[] {
   return items
 }
 
-async function fetchDirectly(feedUrl: string): Promise<FeedItem[]> {
+async function fetchFeed(feedUrl: string): Promise<FeedItem[]> {
   try {
     const resp = await fetch(feedUrl, {
       headers: {
-        'User-Agent': 'PakAidExplorer/1.0',
-        'Accept': 'application/rss+xml, application/atom+xml, application/xml, text/xml, */*',
+        'User-Agent': 'Mozilla/5.0 (compatible; PakAidExplorer/1.0; +https://pakaid-explorer.vercel.app)',
+        'Accept':     'application/rss+xml, application/atom+xml, application/xml, text/xml, */*',
+        'Cache-Control': 'no-cache',
       },
-      signal: AbortSignal.timeout(20_000),
+      signal: AbortSignal.timeout(15_000),
     })
     if (!resp.ok) return []
     const xml = await resp.text()
@@ -188,6 +119,26 @@ async function fetchDirectly(feedUrl: string): Promise<FeedItem[]> {
   } catch {
     return []
   }
+}
+
+// ── Parallel fetch with concurrency limit ─────────────────────────────────────
+async function fetchAllFeeds(
+  feeds: Array<{ id: string; feed_url: string; feed_name: string }>
+): Promise<Map<string, FeedItem[]>> {
+  const result = new Map<string, FeedItem[]>()
+  const queue  = [...feeds]
+
+  async function worker() {
+    while (queue.length > 0) {
+      const feed = queue.shift()!
+      const items = await fetchFeed(feed.feed_url)
+      result.set(feed.feed_url, items)
+    }
+  }
+
+  const workers = Array.from({ length: Math.min(FETCH_CONCURRENCY, feeds.length) }, worker)
+  await Promise.all(workers)
+  return result
 }
 
 // ── Groq AI summarization ─────────────────────────────────────────────────────
@@ -233,68 +184,44 @@ Content: ${description.slice(0, 600)}`,
   }
 }
 
-function delay(ms: number) { return new Promise(r => setTimeout(r, ms)) }
-
 // ── POST handler ──────────────────────────────────────────────────────────────
 export async function POST(_request: Request) {
   const supabase = createAdminClient()
 
-  const { data: feeds, error: feedsError } = await supabase
+  const { data: allFeeds, error: feedsError } = await supabase
     .from('news_feeds')
     .select('*')
     .eq('is_active', true)
     .order('is_pakistan_priority', { ascending: false })
     .order('last_fetched_at',      { ascending: true, nullsFirst: true })
 
-  if (feedsError || !feeds) {
+  if (feedsError || !allFeeds) {
     return NextResponse.json({ error: 'Failed to fetch feeds', detail: feedsError }, { status: 500 })
   }
+
+  // Cap feeds per run to stay within maxDuration
+  const feeds = allFeeds.slice(0, MAX_FEEDS_PER_RUN)
+
+  // ── Parallel fetch ────────────────────────────────────────────────────────
+  const allItems = await fetchAllFeeds(feeds)
 
   let totalInserted   = 0
   let totalSummarized = 0
   const errors: string[] = []
 
-  // ── Batch feeds through Apify ─────────────────────────────────────────────
-  // Map feedUrl → items (populated from Apify or direct fallback)
-  const allItems = new Map<string, FeedItem[]>()
-
-  if (APIFY_TOKEN) {
-    for (let i = 0; i < feeds.length; i += APIFY_BATCH_SIZE) {
-      const batch = feeds.slice(i, i + APIFY_BATCH_SIZE)
-      const batchResult = await fetchViaApify(batch)
-
-      // Merge batch results
-      for (const [url, items] of batchResult) {
-        allItems.set(url, items)
-      }
-
-      // For any feed in batch with no Apify result, fallback to direct
-      for (const feed of batch) {
-        if (!allItems.has(feed.feed_url) || allItems.get(feed.feed_url)!.length === 0) {
-          const direct = await fetchDirectly(feed.feed_url)
-          if (direct.length > 0) {
-            allItems.set(feed.feed_url, direct)
-          } else {
-            errors.push(`${feed.feed_name}: no items from Apify or direct fetch`)
-          }
-        }
-      }
-
-      if (i + APIFY_BATCH_SIZE < feeds.length) await delay(2000)
-    }
-  } else {
-    // No Apify token — direct fetch all
-    for (const feed of feeds) {
-      const items = await fetchDirectly(feed.feed_url)
-      allItems.set(feed.feed_url, items)
-      await delay(300)
-    }
-  }
-
   // ── Score, summarize, upsert ──────────────────────────────────────────────
   for (const feed of feeds) {
     const items = allItems.get(feed.feed_url) ?? []
     let feedInserted = 0
+
+    if (items.length === 0) {
+      errors.push(`${feed.feed_name}: 0 items fetched`)
+      await supabase.from('news_feeds').update({
+        last_fetched_at: new Date().toISOString(),
+        last_item_count: 0,
+      }).eq('id', feed.id)
+      continue
+    }
 
     try {
       for (const item of items) {
@@ -342,7 +269,7 @@ export async function POST(_request: Request) {
       await supabase.from('scraper_logs').upsert({
         name:             `rss:${feed.feed_name}`,
         target_url:       feed.feed_url,
-        status:           'healthy',
+        status:           'healthy' as const,
         last_run:         new Date().toISOString(),
         records_last_run: feedInserted,
         error_message:    null,
@@ -354,7 +281,7 @@ export async function POST(_request: Request) {
       await supabase.from('scraper_logs').upsert({
         name:             `rss:${feed.feed_name}`,
         target_url:       feed.feed_url,
-        status:           'failing',
+        status:           'failing' as const,
         last_run:         new Date().toISOString(),
         records_last_run: 0,
         error_message:    msg.slice(0, 500),
@@ -364,9 +291,9 @@ export async function POST(_request: Request) {
 
   return NextResponse.json({
     feeds_processed:     feeds.length,
+    feeds_total:         allFeeds.length,
     articles_inserted:   totalInserted,
     articles_summarized: totalSummarized,
-    apify_used:          !!APIFY_TOKEN,
     errors,
   })
 }
