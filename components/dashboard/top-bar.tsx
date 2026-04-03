@@ -58,8 +58,8 @@ export function TopBar({ email, fullName, tier, alertCount = 0 }: TopBarProps) {
           />
         </div>
         <span
-          className="hidden sm:block text-[15px] font-semibold tracking-tight"
-          style={{ color: '#ffffff', fontFamily: "'Poppins', 'Inter', sans-serif" }}
+          className="hidden sm:block font-bold tracking-tight leading-none"
+          style={{ color: '#ffffff', fontFamily: "'Poppins', 'Inter', sans-serif", fontSize: '20px', lineHeight: '40px' }}
         >
           PakAid Explorer
         </span>
