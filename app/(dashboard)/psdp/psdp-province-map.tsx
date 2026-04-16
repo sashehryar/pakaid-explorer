@@ -1,6 +1,6 @@
 'use client'
 
-import { ComposableMap, Geographies, Geography, ZoomableGroup } from 'react-simple-maps'
+import { ComposableMap, Geographies, Geography } from 'react-simple-maps'
 import { useState } from 'react'
 
 // jsDelivr CDN — PakData/GISData, all 8 provinces, property: NAME_1
@@ -111,10 +111,11 @@ export function PsdpProvinceMap({ provinces }: Props) {
         <div className="md:col-span-2">
           <ComposableMap
             projection="geoMercator"
-            projectionConfig={{ center: [69, 30], scale: 1200 }}
+            projectionConfig={{ center: [69, 30], scale: 1800 }}
+            width={800}
+            height={580}
             style={{ width: '100%', height: 'auto' }}
           >
-            <ZoomableGroup>
               <Geographies geography={GEO_URL}>
                 {({ geographies }) =>
                   geographies.map(geo => {
@@ -124,7 +125,7 @@ export function PsdpProvinceMap({ provinces }: Props) {
                     const value = pd ? (pd[metric] as number) : 0
                     const fill = pd
                       ? valueToColor(value, maxVal, config.low, config.high)
-                      : '#f3f4f6'
+                      : '#e5e7eb'
 
                     return (
                       <Geography
@@ -132,12 +133,12 @@ export function PsdpProvinceMap({ provinces }: Props) {
                         geography={geo}
                         fill={fill}
                         stroke="#ffffff"
-                        strokeWidth={0.8}
+                        strokeWidth={1.2}
                         onMouseEnter={() => setHovered(provinceKey)}
                         onMouseLeave={() => setHovered(null)}
                         style={{
                           default: { outline: 'none', cursor: 'pointer' },
-                          hover:   { outline: 'none', opacity: 0.8 },
+                          hover:   { outline: 'none', opacity: 0.75 },
                           pressed: { outline: 'none' },
                         }}
                       />
@@ -145,7 +146,6 @@ export function PsdpProvinceMap({ provinces }: Props) {
                   })
                 }
               </Geographies>
-            </ZoomableGroup>
           </ComposableMap>
 
           {/* Gradient legend */}
