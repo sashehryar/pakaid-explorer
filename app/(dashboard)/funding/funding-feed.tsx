@@ -34,9 +34,18 @@ function ProjectModal({ project, onClose }: { project: Project; onClose: () => v
   const days = daysUntil(project.end_date)
   const zone = expiryZone(days)
 
-  const disbursedPct = project.amount_usd && project.amount_usd > 0
-    ? Math.min(100, Math.round(Math.random() * 40 + 30)) // placeholder — replace with real disbursement field
-    : null
+  // Estimate disbursement % from time elapsed through project life.
+  // Uses (today − start) / (end − start) × 0.85 (typical disbursement lag).
+  // Shows null when dates are unavailable.
+  const disbursedPct = (() => {
+    if (!project.amount_usd || !project.start_date || !project.end_date) return null
+    const start = new Date(project.start_date).getTime()
+    const end   = new Date(project.end_date).getTime()
+    const now   = Date.now()
+    if (end <= start) return null
+    const elapsed = Math.max(0, Math.min(1, (now - start) / (end - start)))
+    return Math.min(95, Math.round(elapsed * 85))
+  })()
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
