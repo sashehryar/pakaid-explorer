@@ -1,17 +1,17 @@
 import { NextResponse } from 'next/server'
 import { createAdminClient } from '@/lib/supabase/server'
 
-export const runtime    = 'nodejs'
+export const runtime     = 'nodejs'
 export const maxDuration = 300
 
 const GROQ_KEY            = process.env.GROQ_API_KEY
 const SUMMARIZE_THRESHOLD = 0.15
 const SUMMARIZE_MAX       = 30
-const MAX_FEEDS_PER_RUN   = 25   // stay well inside 300 s limit
-const FETCH_CONCURRENCY   = 8    // parallel feed fetches
-const PER_SOURCE_CAP      = 5    // max items taken per feed
+const MAX_FEEDS_PER_RUN   = 25
+const FETCH_CONCURRENCY   = 8
+const PER_SOURCE_CAP      = 5
 
-// ── Relevance scoring keywords ────────────────────────────────────────────────
+// ── Relevance scoring keywords ─────────────────────────────────────────────────
 const PAKISTAN_KW = ['pakistan', "pakistan's", 'pakistani', 'lahore', 'karachi', 'islamabad', 'peshawar', 'quetta']
 const PROVINCE_KW = ['punjab', 'sindh', 'balochistan', 'khyber', 'pakhtunkhwa', 'azad kashmir', 'gilgit']
 const DONOR_KW    = [
@@ -49,7 +49,6 @@ function scoreRecency(pubDate: string | null): number {
   return Math.max(0, 1 - days / 30)
 }
 
-// ── Strip HTML helper ─────────────────────────────────────────────────────────
 function stripHtml(raw: string): string {
   return raw
     .replace(/<[^>]*>/g, '')
@@ -58,7 +57,6 @@ function stripHtml(raw: string): string {
     .slice(0, 200)
 }
 
-// ── Types ─────────────────────────────────────────────────────────────────────
 interface FeedItem {
   title:       string
   link:        string
@@ -73,7 +71,6 @@ interface AISummary {
   potential_action: string
 }
 
-// ── RSS/Atom XML parser (no external dependency) ──────────────────────────────
 function getTagText(xml: string, tag: string): string {
   const cdata = xml.match(new RegExp(`<${tag}[^>]*><!\\[CDATA\\[([\\s\\S]*?)\\]\\]><\/${tag}>`, 'i'))
   if (cdata) return cdata[1].trim()
@@ -119,9 +116,9 @@ async function fetchFeed(feedUrl: string): Promise<FeedItem[]> {
   try {
     const resp = await fetch(feedUrl, {
       headers: {
-        'User-Agent': 'Mozilla/5.0 (compatible; PakAidExplorer/1.0; +https://pakaid-explorer.vercel.app)',
-        'Accept':     'application/rss+xml, application/atom+xml, application/xml, text/xml, */*',
-        'Cache-Control': 'no-cache',
+        'User-Agent':     'Mozilla/5.0 (compatible; PakAidExplorer/1.0; +https://pakaid-explorer.vercel.app)',
+        'Accept':         'application/rss+xml, application/atom+xml, application/xml, text/xml, */*',
+        'Cache-Control':  'no-cache',
       },
       signal: AbortSignal.timeout(15_000),
     })
@@ -133,7 +130,6 @@ async function fetchFeed(feedUrl: string): Promise<FeedItem[]> {
   }
 }
 
-// ── Parallel fetch with concurrency limit ─────────────────────────────────────
 async function fetchAllFeeds(
   feeds: Array<{ id: string; feed_url: string; feed_name: string }>
 ): Promise<Map<string, FeedItem[]>> {
@@ -148,12 +144,10 @@ async function fetchAllFeeds(
     }
   }
 
-  const workers = Array.from({ length: Math.min(FETCH_CONCURRENCY, feeds.length) }, worker)
-  await Promise.all(workers)
+  await Promise.all(Array.from({ length: Math.min(FETCH_CONCURRENCY, feeds.length) }, worker))
   return result
 }
 
-// ── Groq AI summarization ─────────────────────────────────────────────────────
 async function summarizeWithGroq(title: string, description: string): Promise<AISummary | null> {
   if (!GROQ_KEY) return null
   try {
@@ -199,8 +193,8 @@ Content: ${description.slice(0, 600)}`,
   }
 }
 
-// ── POST handler ──────────────────────────────────────────────────────────────
-export async function POST(_request: Request) {
+// ── Core scraper logic ──────────────────────────────────────────────────────────
+async function runScraper() {
   const supabase = createAdminClient()
 
   const { data: allFeeds, error: feedsError } = await supabase
@@ -211,13 +205,10 @@ export async function POST(_request: Request) {
     .order('last_fetched_at',      { ascending: true, nullsFirst: true })
 
   if (feedsError || !allFeeds) {
-    return NextResponse.json({ error: 'Failed to fetch feeds', detail: feedsError }, { status: 500 })
+    return { error: 'Failed to fetch feeds', detail: feedsError }
   }
 
-  // Cap feeds per run to stay within maxDuration
   const feeds = allFeeds.slice(0, MAX_FEEDS_PER_RUN)
-
-  // ── Parallel fetch ────────────────────────────────────────────────────────
   const allItems = await fetchAllFeeds(feeds)
 
   let totalInserted    = 0
@@ -225,11 +216,9 @@ export async function POST(_request: Request) {
   let feedsWithData    = 0
   const errors: string[] = []
 
-  // ── Score, summarize, upsert ──────────────────────────────────────────────
   for (const feed of feeds) {
     const rawItems = allItems.get(feed.feed_url) ?? []
-    // Apply per-source cap
-    const items = rawItems.slice(0, PER_SOURCE_CAP)
+    const items    = rawItems.slice(0, PER_SOURCE_CAP)
     let feedInserted = 0
 
     if (items.length === 0) {
@@ -252,11 +241,8 @@ export async function POST(_request: Request) {
         const relevance = scoreRelevance(bodyText)
         const composite = 0.4 * recency + 0.6 * relevance
 
-        // Determine relevance_country
-        const lowerBody = bodyText.toLowerCase()
-        const isPakistan =
-          PAKISTAN_KW.some(kw => lowerBody.includes(kw)) ||
-          PROVINCE_KW.some(kw => lowerBody.includes(kw))
+        const lowerBody    = bodyText.toLowerCase()
+        const isPakistan   = PAKISTAN_KW.some(kw => lowerBody.includes(kw)) || PROVINCE_KW.some(kw => lowerBody.includes(kw))
         const relevanceCountry = isPakistan ? 'PK' : null
 
         let summary: AISummary | null = null
@@ -318,12 +304,30 @@ export async function POST(_request: Request) {
     }
   }
 
-  return NextResponse.json({
+  return {
     feeds_processed:     feeds.length,
     feeds_total:         allFeeds.length,
     feeds_with_data:     feedsWithData,
     articles_inserted:   totalInserted,
     articles_summarized: totalSummarized,
     errors,
-  })
+  }
+}
+
+// ── GET — called by Vercel cron (runs every 6 hours) ──────────────────────────
+export async function GET() {
+  const result = await runScraper()
+  if ('error' in result) {
+    return NextResponse.json(result, { status: 500 })
+  }
+  return NextResponse.json(result)
+}
+
+// ── POST — called manually or from admin panel ────────────────────────────────
+export async function POST() {
+  const result = await runScraper()
+  if ('error' in result) {
+    return NextResponse.json(result, { status: 500 })
+  }
+  return NextResponse.json(result)
 }

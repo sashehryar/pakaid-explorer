@@ -423,10 +423,10 @@ export default async function IntelligencePage() {
         </section>
       )}
 
-      {/* ICP-specific implications */}
+      {/* Organisation-type implications */}
       <section>
         <h2 className="text-sm font-bold uppercase tracking-widest mb-3" style={{ color: 'var(--color-text-secondary)' }}>
-          Implication Layer — By ICP Type
+          Implication Layer — By Organisation Type
         </h2>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
           {[

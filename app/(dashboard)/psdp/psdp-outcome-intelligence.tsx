@@ -222,7 +222,7 @@ export function PsdpOutcomeIntelligence({ sectorData = [] }: Props) {
         style={{ background: '#fff', borderColor: 'var(--color-border-subtle)' }}>
         <div className="flex items-center gap-2">
           <Target size={16} style={{ color: '#055C45' }} />
-          <h2 className="text-sm font-bold" style={{ color: 'var(--color-text-primary)' }}>ICP Opportunity Scoring Framework</h2>
+          <h2 className="text-sm font-bold" style={{ color: 'var(--color-text-primary)' }}>Opportunity Scoring Framework</h2>
         </div>
         <p className="text-sm" style={{ color: 'var(--color-text-secondary)' }}>
           Each scheme/district is scored across four dimensions to identify where donor support, TA, co-financing, or redesign would create highest marginal value.
