@@ -4,6 +4,7 @@ import type { PsdpScheme } from '@/lib/types/database'
 import { PsdpDashboard } from './psdp-dashboard'
 import { PsdpOutcomeIntelligence } from './psdp-outcome-intelligence'
 import { PsdpProvinceMap } from './psdp-province-map'
+import { PsdpPopulationInsights } from './psdp-population-insights'
 
 export const metadata: Metadata = { title: 'PSDP and ADP Spend' }
 
@@ -309,6 +310,14 @@ export default async function PsdpPage() {
 
       {/* Outcome Intelligence layer */}
       <PsdpOutcomeIntelligence sectorData={sectors} />
+
+      {/* Population Pressure & Spend Intelligence — additive card, reads from existing data layer */}
+      {/* onActionSelect omitted here (server component); wire it in a client wrapper if needed */}
+      <PsdpPopulationInsights
+        schemes={rows}
+        provinces={provinces}
+        sectors={sectors}
+      />
     </div>
   )
 }
