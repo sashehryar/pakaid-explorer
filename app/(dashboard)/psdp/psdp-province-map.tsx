@@ -58,14 +58,24 @@ function hexToRgb(hex: string) {
   return [r, g, b]
 }
 
-function valueToColor(value: number, max: number, lowHex: string, highHex: string): string {
-  if (max === 0) return lowHex
-  const t = value / max
+/**
+ * Maps value → colour using the *actual* data range [min, max] rather than
+ * [0, max].  This prevents all provinces collapsing to the same shade when
+ * values cluster (e.g. 35–45 % execution all rendering identically green).
+ * A small padding (5 % of range) is applied so the lowest value is never
+ * the bare low colour and the highest is never the bare high colour.
+ */
+function valueToColor(value: number, min: number, max: number, lowHex: string, highHex: string): string {
+  const range = max - min
+  if (range < 0.001) return lowHex
+  const pad = range * 0.05
+  const t   = (value - (min - pad)) / (range + 2 * pad)
+  const tc  = Math.max(0, Math.min(1, t))
   const [lr, lg, lb] = hexToRgb(lowHex)
   const [hr, hg, hb] = hexToRgb(highHex)
-  const r = Math.round(lerp(lr, hr, t))
-  const g = Math.round(lerp(lg, hg, t))
-  const b = Math.round(lerp(lb, hb, t))
+  const r = Math.round(lerp(lr, hr, tc))
+  const g = Math.round(lerp(lg, hg, tc))
+  const b = Math.round(lerp(lb, hb, tc))
   return `rgb(${r},${g},${b})`
 }
 
@@ -80,8 +90,9 @@ export function PsdpProvinceMap({ provinces }: Props) {
   const dataMap = Object.fromEntries(provinces.map(p => [p.province, p]))
   const config  = METRIC_CONFIG[metric]
 
-  const values  = provinces.map(p => p[metric] as number)
-  const maxVal  = Math.max(...values, 1)
+  const values  = provinces.map(p => p[metric] as number).filter(v => v > 0)
+  const minVal  = values.length ? Math.min(...values) : 0
+  const maxVal  = values.length ? Math.max(...values) : 1
 
   const hoveredData = hovered ? dataMap[hovered] : null
 
@@ -124,7 +135,7 @@ export function PsdpProvinceMap({ provinces }: Props) {
                     const pd = dataMap[provinceKey]
                     const value = pd ? (pd[metric] as number) : 0
                     const fill = pd
-                      ? valueToColor(value, maxVal, config.low, config.high)
+                      ? valueToColor(value, minVal, maxVal, config.low, config.high)
                       : '#e5e7eb'
 
                     return (

@@ -5,6 +5,7 @@ import { PsdpDashboard } from './psdp-dashboard'
 import { PsdpOutcomeIntelligence } from './psdp-outcome-intelligence'
 import { PsdpProvinceMap } from './psdp-province-map'
 import { PsdpPopulationInsights } from './psdp-population-insights'
+import { PsdpSecurityPanel } from './psdp-security-panel'
 
 export const metadata: Metadata = { title: 'PSDP and ADP Spend' }
 
@@ -318,6 +319,9 @@ export default async function PsdpPage() {
         provinces={provinces}
         sectors={sectors}
       />
+
+      {/* Population Security Intelligence — static JSON from pipeline, no extra DB queries */}
+      <PsdpSecurityPanel />
     </div>
   )
 }

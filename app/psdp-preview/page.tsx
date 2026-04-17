@@ -1,5 +1,6 @@
 import { createAdminClient } from '@/lib/supabase/server'
 import { PsdpProvinceMap } from '@/app/(dashboard)/psdp/psdp-province-map'
+import { PsdpSecurityPanel } from '@/app/(dashboard)/psdp/psdp-security-panel'
 
 // ── Types ──────────────────────────────────────────────────────────────────
 
@@ -554,6 +555,9 @@ export default async function PsdpPreviewPage() {
           </div>
         </div>
       )}
+
+      {/* ── Population Security Intelligence ──────────────────────── */}
+      <PsdpSecurityPanel />
 
       {/* ── Full-access CTA ───────────────────────────────────────── */}
       <div style={{
