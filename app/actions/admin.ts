@@ -8,6 +8,9 @@ import {
   scrapeDevNetJobs,
   scrapeADBProjects,
   scrapeEADPipeline,
+  scrapeFCDODevTracker,
+  scrapeEUOpsys,
+  scrapeUNJobs,
   scrapePPRATenders,
   scrapeGIZProjects,
   scrapeIATIDatastore,
@@ -87,7 +90,17 @@ export async function triggerScraper(scraperName: string): Promise<{ ok: boolean
     case 'GIZ Project Finder':
       result = await scrapeGIZProjects()
       break
-    case 'IATI Datastore':
+    case 'FCDO DevTracker':
+      result = await scrapeFCDODevTracker()
+      break
+    case 'EU OPSYS Pakistan':
+      result = await scrapeEUOpsys()
+      break
+    case 'UN Jobs Pakistan':
+      result = await scrapeUNJobs()
+      break
+    case 'IATI Datastore':          // legacy name kept for safety
+    case 'IATI Datastore Pakistan': // matches DB
       result = await scrapeIATIDatastore()
       break
     case 'Dawn Business':

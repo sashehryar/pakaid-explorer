@@ -426,7 +426,7 @@ export async function scrapeGIZProjects(): Promise<{ ok: boolean; message: strin
 // ── IATI Datastore (overlap records) ──────────────────────────────────────────
 
 export async function scrapeIATIDatastore(): Promise<{ ok: boolean; message: string }> {
-  const SCRAPER_NAME = 'IATI Datastore'
+  const SCRAPER_NAME = 'IATI Datastore Pakistan'  // matches DB name
   try {
     const res = await fetch(
       'https://iati.cloud/search/activity?' +
@@ -681,6 +681,198 @@ export async function scrapeProcurementNotices(
   } catch (err) {
     const msg = err instanceof Error ? err.message : 'Unknown error'
     await updateScraperLog(scraperName, 'failing', 0, msg)
+    return { ok: false, message: msg }
+  }
+}
+
+// ── FCDO DevTracker (IATI GB-GOV-1) ───────────────────────────────────────────
+
+export async function scrapeFCDODevTracker(): Promise<{ ok: boolean; message: string }> {
+  const SCRAPER_NAME = 'FCDO DevTracker'
+  try {
+    // FCDO (formerly DFID) IATI organisation ref: GB-GOV-1
+    const res = await fetch(
+      'https://iati.cloud/search/activity?' +
+      'q=reporting_org_ref:(GB-GOV-1)%20AND%20recipient_country_code:(PK)%20AND%20activity_status_code:(2)' +
+      '&fl=iati_identifier,title_narrative,description_narrative,' +
+        'activity_date_start_actual,activity_date_end_planned,budget_value,sector_narrative' +
+      '&rows=40&sort=budget_value+desc&wt=json',
+      { next: { revalidate: 0 }, signal: AbortSignal.timeout(20_000) }
+    )
+    if (!res.ok) throw new Error(`IATI returned ${res.status}`)
+
+    const json = await res.json()
+    const docs = (json.response?.docs ?? []) as Array<{
+      iati_identifier?: string
+      title_narrative?: string[]
+      activity_date_start_actual?: string
+      activity_date_end_planned?:  string
+      budget_value?: number[]
+      sector_narrative?: string[]
+    }>
+
+    const admin = createAdminClient()
+    let inserted = 0
+
+    for (const doc of docs) {
+      const title = doc.title_narrative?.[0]
+      if (!title) continue
+      const { error } = await admin
+        .from('projects')
+        .upsert(
+          {
+            title:      title.slice(0, 500),
+            donor:      'FCDO',
+            sector:     doc.sector_narrative?.[0] ?? 'Governance',
+            status:     'active' as const,
+            iati_id:    doc.iati_identifier ?? null,
+            start_date: doc.activity_date_start_actual ?? null,
+            end_date:   doc.activity_date_end_planned  ?? null,
+            amount_usd: doc.budget_value?.[0]          ?? null,
+            source:     'IATI/FCDO',
+            source_url: doc.iati_identifier
+              ? `https://devtracker.fcdo.gov.uk/projects/${doc.iati_identifier}`
+              : null,
+          },
+          { onConflict: 'iati_id', ignoreDuplicates: true }
+        )
+      if (!error) inserted++
+    }
+
+    await updateScraperLog(SCRAPER_NAME, 'healthy', inserted)
+    return { ok: true, message: `Fetched ${docs.length} FCDO projects via IATI, inserted ${inserted}` }
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : 'Unknown error'
+    await updateScraperLog(SCRAPER_NAME, 'failing', 0, msg)
+    return { ok: false, message: msg }
+  }
+}
+
+// ── EU OPSYS Pakistan (IATI XM-DAC-6-4 = European Commission) ─────────────────
+
+export async function scrapeEUOpsys(): Promise<{ ok: boolean; message: string }> {
+  const SCRAPER_NAME = 'EU OPSYS Pakistan'
+  try {
+    // European Commission (EuropeAid/DG DEVCO) IATI org ref: XM-DAC-6-4
+    const res = await fetch(
+      'https://iati.cloud/search/activity?' +
+      'q=reporting_org_ref:(XM-DAC-6-4)%20AND%20recipient_country_code:(PK)%20AND%20activity_status_code:(2)' +
+      '&fl=iati_identifier,title_narrative,description_narrative,' +
+        'activity_date_start_actual,activity_date_end_planned,budget_value,sector_narrative' +
+      '&rows=30&sort=budget_value+desc&wt=json',
+      { next: { revalidate: 0 }, signal: AbortSignal.timeout(20_000) }
+    )
+    if (!res.ok) throw new Error(`IATI returned ${res.status}`)
+
+    const json = await res.json()
+    const docs = (json.response?.docs ?? []) as Array<{
+      iati_identifier?: string
+      title_narrative?: string[]
+      activity_date_start_actual?: string
+      activity_date_end_planned?:  string
+      budget_value?: number[]
+      sector_narrative?: string[]
+    }>
+
+    const admin = createAdminClient()
+    let inserted = 0
+
+    for (const doc of docs) {
+      const title = doc.title_narrative?.[0]
+      if (!title) continue
+      const { error } = await admin
+        .from('projects')
+        .upsert(
+          {
+            title:      title.slice(0, 500),
+            donor:      'EU',
+            sector:     doc.sector_narrative?.[0] ?? 'Governance',
+            status:     'active' as const,
+            iati_id:    doc.iati_identifier ?? null,
+            start_date: doc.activity_date_start_actual ?? null,
+            end_date:   doc.activity_date_end_planned  ?? null,
+            amount_usd: doc.budget_value?.[0]          ?? null,
+            source:     'IATI/EU',
+            source_url: doc.iati_identifier
+              ? `https://d-portal.org/ctrack.html#view=act&aid=${doc.iati_identifier}`
+              : null,
+          },
+          { onConflict: 'iati_id', ignoreDuplicates: true }
+        )
+      if (!error) inserted++
+    }
+
+    await updateScraperLog(SCRAPER_NAME, 'healthy', inserted)
+    return { ok: true, message: `Fetched ${docs.length} EU projects via IATI, inserted ${inserted}` }
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : 'Unknown error'
+    await updateScraperLog(SCRAPER_NAME, 'failing', 0, msg)
+    return { ok: false, message: msg }
+  }
+}
+
+// ── UN Jobs Pakistan (ReliefWeb Jobs API — UN source type) ─────────────────────
+
+export async function scrapeUNJobs(): Promise<{ ok: boolean; message: string }> {
+  const SCRAPER_NAME = 'UN Jobs Pakistan'
+  try {
+    // ReliefWeb jobs API filtered for Pakistan + UN-type organisations
+    const res = await fetch(
+      'https://api.reliefweb.int/v1/jobs' +
+      '?appname=pakaid-explorer&profile=full&limit=30' +
+      '&filter[operator]=AND' +
+      '&filter[conditions][0][field]=country.name&filter[conditions][0][value]=Pakistan' +
+      '&filter[conditions][1][field]=source.type.name&filter[conditions][1][value]=United%20Nations',
+      { next: { revalidate: 0 }, signal: AbortSignal.timeout(20_000) }
+    )
+    if (!res.ok) throw new Error(`ReliefWeb returned ${res.status}`)
+
+    const json  = await res.json()
+    const items = (json.data ?? []) as Array<{
+      id: string
+      fields: {
+        title: string
+        source?: Array<{ name: string }>
+        city?: Array<{ name: string }>
+        type?: Array<{ name: string }>
+        career_categories?: Array<{ name: string }>
+        date?: { closing?: string }
+        url?: string
+        body?: string
+      }
+    }>
+
+    const admin = createAdminClient()
+    let inserted = 0
+
+    for (const item of items) {
+      const f = item.fields
+      const { error } = await admin
+        .from('jobs')
+        .upsert(
+          {
+            title:           f.title,
+            organisation:    f.source?.[0]?.name ?? 'UN Agency',
+            org_type:        'UN',
+            location:        f.city?.[0]?.name ?? 'Pakistan',
+            employment_type: f.type?.[0]?.name ?? 'Full-time',
+            seniority:       'Mid',
+            sector:          f.career_categories?.[0]?.name ?? null,
+            apply_url:       f.url ?? null,
+            description:     (f.body ?? '').slice(0, 1000),
+            deadline:        f.date?.closing ?? null,
+            source:          'UN Jobs',
+          },
+          { onConflict: 'title,organisation', ignoreDuplicates: true }
+        )
+      if (!error) inserted++
+    }
+
+    await updateScraperLog(SCRAPER_NAME, 'healthy', inserted)
+    return { ok: true, message: `Fetched ${items.length} UN jobs via ReliefWeb, inserted ${inserted}` }
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : 'Unknown error'
+    await updateScraperLog(SCRAPER_NAME, 'failing', 0, msg)
     return { ok: false, message: msg }
   }
 }
