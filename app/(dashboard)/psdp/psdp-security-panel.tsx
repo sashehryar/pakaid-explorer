@@ -374,11 +374,11 @@ export function PsdpSecurityPanel() {
                       return start > 0 ? Math.round(((start - end) / start) * 100) : 0
                     })() : 0
                     return (
-                      <tr key={p.province} style={{ borderBottom: '1px solid var(--color-border)' }}
+                      <tr key={p.province}
+                        style={{ borderBottom: '1px solid var(--color-border)', cursor: 'pointer' }}
                         onClick={() => setActiveProvince(p.province)}
                         onMouseEnter={e => (e.currentTarget.style.background = 'var(--color-surface-subtle)')}
-                        onMouseLeave={e => (e.currentTarget.style.background = '')}
-                        style={{ cursor: 'pointer' }}>
+                        onMouseLeave={e => (e.currentTarget.style.background = '')}>
                         <td style={{ padding: '5px 8px', fontWeight: 600, color: 'var(--color-text-primary)' }}>{p.province}</td>
                         <td style={{ padding: '5px 8px', textAlign: 'right' }}>
                           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: 6 }}>
