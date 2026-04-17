@@ -7,9 +7,12 @@ export const metadata: Metadata = { title: 'Tender Opportunities' }
 
 export default async function ProcurementPage() {
   const supabase = await createClient()
+  // Awarded tenders always visible; open/evaluation only if deadline hasn't passed
+  const today = new Date().toISOString().split('T')[0]
   const { data } = await supabase
     .from('tenders')
     .select('*')
+    .or(`status.eq.awarded,deadline.is.null,deadline.gte.${today}`)
     .order('deadline', { ascending: true })
     .limit(100)
 

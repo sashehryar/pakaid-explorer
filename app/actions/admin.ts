@@ -5,6 +5,9 @@ import { createClient, createAdminClient } from '@/lib/supabase/server'
 import type { UserRole, UserTier } from '@/lib/types/database'
 import {
   scrapeReliefWebJobs,
+  scrapeDevNetJobs,
+  scrapeADBProjects,
+  scrapeEADPipeline,
   scrapePPRATenders,
   scrapeGIZProjects,
   scrapeIATIDatastore,
@@ -68,6 +71,15 @@ export async function triggerScraper(scraperName: string): Promise<{ ok: boolean
   switch (scraperName) {
     case 'ReliefWeb Jobs':
       result = await scrapeReliefWebJobs()
+      break
+    case 'DevNetJobs Pakistan':
+      result = await scrapeDevNetJobs()
+      break
+    case 'ADB Pakistan Projects':
+      result = await scrapeADBProjects()
+      break
+    case 'EAD Project Pipeline':
+      result = await scrapeEADPipeline()
       break
     case 'PPRA Federal Tenders':
       result = await scrapePPRATenders()

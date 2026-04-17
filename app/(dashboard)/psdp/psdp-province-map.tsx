@@ -1,7 +1,7 @@
 'use client'
 
 import { ComposableMap, Geographies, Geography } from 'react-simple-maps'
-import { useState } from 'react'
+import { useState, useRef, useCallback } from 'react'
 
 // jsDelivr CDN — PakData/GISData, all 8 provinces, property: NAME_1
 const GEO_URL = 'https://cdn.jsdelivr.net/gh/PakData/GISData@master/PAK-GeoJSON/PAK_adm1.json'
@@ -86,6 +86,16 @@ interface Props {
 export function PsdpProvinceMap({ provinces }: Props) {
   const [metric, setMetric] = useState<Metric>('avg_execution_pct')
   const [hovered, setHovered] = useState<string | null>(null)
+  const leaveTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
+
+  const handleEnter = useCallback((key: string) => {
+    if (leaveTimer.current) clearTimeout(leaveTimer.current)
+    setHovered(key)
+  }, [])
+
+  const handleLeave = useCallback(() => {
+    leaveTimer.current = setTimeout(() => setHovered(null), 80)
+  }, [])
 
   const dataMap = Object.fromEntries(provinces.map(p => [p.province, p]))
   const config  = METRIC_CONFIG[metric]
@@ -145,8 +155,8 @@ export function PsdpProvinceMap({ provinces }: Props) {
                         fill={fill}
                         stroke="#ffffff"
                         strokeWidth={1.2}
-                        onMouseEnter={() => setHovered(provinceKey)}
-                        onMouseLeave={() => setHovered(null)}
+                        onMouseEnter={() => handleEnter(provinceKey)}
+                        onMouseLeave={handleLeave}
                         style={{
                           default: { outline: 'none', cursor: 'pointer' },
                           hover:   { outline: 'none', opacity: 0.75 },
