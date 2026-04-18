@@ -117,7 +117,7 @@ export function PsdpPopulationInsights({ schemes, provinces, sectors, onActionSe
       <div style={{ padding: '16px 20px 12px', borderBottom: '1px solid var(--color-border)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         <div>
           <h3 className="text-sm font-bold" style={{ color: 'var(--color-text-primary)', margin: 0 }}>
-            Population Pressure &amp; Spend Intelligence
+            Population Pressure
           </h3>
           <p className="text-xs mt-0.5" style={{ color: 'var(--color-text-secondary)', margin: 0 }}>
             Census 2023 × PSDP {filters?.provinces?.length ? `· ${filters.provinces.join(', ')}` : 'All Provinces'}

@@ -110,7 +110,7 @@ export function PsdpProvinceMap({ provinces }: Props) {
     <div className="rounded-xl border p-4" style={{ background: '#fff', borderColor: 'var(--color-border-subtle)' }}>
       <div className="flex items-center justify-between flex-wrap gap-3 mb-3">
         <div>
-          <h2 className="text-sm font-bold" style={{ color: 'var(--color-text-primary)' }}>Province PSDP Heatmap</h2>
+          <h2 className="text-sm font-bold" style={{ color: 'var(--color-text-primary)' }}>PSDP Heatmap</h2>
           <p className="text-xs mt-0.5" style={{ color: 'var(--color-text-secondary)' }}>Hover a province to see details</p>
         </div>
         <div className="flex rounded-lg border overflow-hidden" style={{ borderColor: 'var(--color-border-subtle)' }}>

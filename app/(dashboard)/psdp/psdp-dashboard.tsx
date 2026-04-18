@@ -3,11 +3,15 @@
 import { useState, useMemo } from 'react'
 import { cn } from '@/lib/utils'
 import type { PsdpScheme, ImplementationStage, SchemeRiskLevel, OpportunityType } from '@/lib/types/database'
+import type { ProvinceRow, MinistryRow, SectorRow } from './page'
 import {
   Search, X, ExternalLink, AlertTriangle, TrendingUp,
-  MapPin, Building2, Banknote, Calendar, ChevronDown, ChevronRight,
-  Zap, Eye, Users, Briefcase,
+  MapPin, Banknote, Eye, Zap,
 } from 'lucide-react'
+import { PsdpProvinceMap }         from './psdp-province-map'
+import { PsdpOutcomeIntelligence }  from './psdp-outcome-intelligence'
+import { PsdpPopulationInsights }   from './psdp-population-insights'
+import { PsdpSecurityPanel }        from './psdp-security-panel'
 
 // ── Constants ──────────────────────────────────────────────────────────────────
 
@@ -16,13 +20,6 @@ const RISK_COLORS: Record<SchemeRiskLevel, string> = {
   medium:   'bg-amber-50 text-amber-700 border-amber-200',
   high:     'bg-orange-50 text-orange-700 border-orange-200',
   critical: 'bg-danger/10 text-danger border-danger/20',
-}
-
-const RISK_BAR: Record<SchemeRiskLevel, string> = {
-  low:      'bg-fern',
-  medium:   'bg-amber-500',
-  high:     'bg-orange-500',
-  critical: 'bg-danger',
 }
 
 const STAGE_LABELS: Record<ImplementationStage, string> = {
@@ -52,10 +49,22 @@ const OPP_LABELS: Record<OpportunityType, string> = {
   none:                  'None',
 }
 
-const TABS = ['Overview', 'Federal PSDP', 'Provincial ADPs', 'Opportunities', 'Risk Intelligence'] as const
+const TABS = [
+  'Overview',
+  'Federal PSDP',
+  'Provincial ADPs',
+  'Opportunities',
+  'Risk',
+  'Sectoral Spending',
+  'Ministry Efficiency',
+  'All Schemes',
+  'Opportunity Scoring',
+  'Population',
+] as const
 type Tab = typeof TABS[number]
 
-const SOURCES = ['federal_psdp', 'provincial_adp', 'special_program'] as const
+// Tabs that display filtered scheme cards (search/filter bar is relevant)
+const SCHEME_TABS: Tab[] = ['Overview', 'Federal PSDP', 'Provincial ADPs', 'Opportunities', 'Risk', 'All Schemes']
 
 // ── Helper components ──────────────────────────────────────────────────────────
 
@@ -99,16 +108,16 @@ function WarningSignals({ signals }: { signals: string[] | null }) {
 }
 
 function FinancialBar({ scheme }: { scheme: PsdpScheme }) {
-  const alloc   = scheme.allocation_bn ?? 0
-  const released = scheme.released_bn ?? 0
-  const utilized = scheme.utilized_bn ?? 0
-  const relPct  = alloc > 0 ? Math.min(100, (released / alloc) * 100) : 0
-  const utilPct = alloc > 0 ? Math.min(100, (utilized / alloc) * 100) : 0
+  const alloc    = scheme.allocation_bn ?? 0
+  const released = scheme.released_bn  ?? 0
+  const utilized = scheme.utilized_bn  ?? 0
+  const relPct   = alloc > 0 ? Math.min(100, (released / alloc) * 100) : 0
+  const utilPct  = alloc > 0 ? Math.min(100, (utilized / alloc) * 100) : 0
   return (
     <div className="space-y-1">
       <div className="relative h-3 w-full rounded-full bg-silver overflow-hidden">
         <div className="absolute h-full bg-blue-300 rounded-full" style={{ width: `${relPct}%` }} />
-        <div className="absolute h-full bg-pine rounded-full" style={{ width: `${utilPct}%` }} />
+        <div className="absolute h-full bg-pine rounded-full"     style={{ width: `${utilPct}%` }} />
       </div>
       <div className="flex justify-between text-[10px] text-ash">
         <span>PKR {alloc.toFixed(1)}B allocated</span>
@@ -452,7 +461,7 @@ function SectorChart({ schemes }: { schemes: PsdpScheme[] }) {
       const k = s.sector ?? 'Other'
       if (!map[k]) map[k] = { alloc: 0, util: 0, count: 0 }
       map[k].alloc += s.allocation_bn ?? 0
-      map[k].util  += s.utilized_bn ?? 0
+      map[k].util  += s.utilized_bn  ?? 0
       map[k].count += 1
     }
     return Object.entries(map)
@@ -476,7 +485,7 @@ function SectorChart({ schemes }: { schemes: PsdpScheme[] }) {
               </div>
               <div className="relative h-2 rounded-full bg-silver overflow-hidden">
                 <div className="absolute h-full bg-pine/20 rounded-full" style={{ width: `${(d.alloc / maxAlloc) * 100}%` }} />
-                <div className="absolute h-full bg-pine rounded-full" style={{ width: `${(d.util / maxAlloc) * 100}%` }} />
+                <div className="absolute h-full bg-pine rounded-full"    style={{ width: `${(d.util  / maxAlloc) * 100}%` }} />
               </div>
             </div>
           )
@@ -486,59 +495,161 @@ function SectorChart({ schemes }: { schemes: PsdpScheme[] }) {
   )
 }
 
-// ── Province comparison ────────────────────────────────────────────────────────
+// ── Provincial Allocations table ───────────────────────────────────────────────
 
-function ProvinceTable({ schemes }: { schemes: PsdpScheme[] }) {
-  const provinces = useMemo(() => {
-    const map: Record<string, { alloc: number; util: number; slow: number; count: number }> = {}
-    for (const s of schemes) {
-      const k = s.province ?? 'National'
-      if (!map[k]) map[k] = { alloc: 0, util: 0, slow: 0, count: 0 }
-      map[k].alloc += s.allocation_bn ?? 0
-      map[k].util  += s.utilized_bn ?? 0
-      map[k].slow  += s.is_slow_moving ? 1 : 0
-      map[k].count += 1
-    }
-    return Object.entries(map).sort((a, b) => b[1].alloc - a[1].alloc)
-  }, [schemes])
-
+function ProvincialAllocationsTable({ provinces }: { provinces: ProvinceRow[] }) {
   return (
-    <div className="rounded-xl border border-silver bg-card overflow-hidden">
-      <div className="px-5 py-3 border-b border-silver">
-        <p className="text-xs font-bold text-ink">Province Comparison</p>
+    <div className="rounded-xl border overflow-hidden h-full" style={{ borderColor: 'var(--color-border-subtle)', background: '#fff' }}>
+      <div className="px-4 py-3 border-b" style={{ borderColor: 'var(--color-border-subtle)' }}>
+        <p className="text-xs font-bold" style={{ color: 'var(--color-text-primary)' }}>Provincial Allocations</p>
       </div>
-      <table className="w-full text-xs">
-        <thead className="bg-fog text-ash font-medium">
-          <tr>
-            <th className="px-4 py-2 text-left">Province</th>
-            <th className="px-4 py-2 text-right">Allocation</th>
-            <th className="px-4 py-2 text-right">Utilized</th>
-            <th className="px-4 py-2 text-right">Execution</th>
-            <th className="px-4 py-2 text-right">Schemes</th>
-            <th className="px-4 py-2 text-right">Slow</th>
-          </tr>
-        </thead>
-        <tbody className="divide-y divide-silver">
-          {provinces.map(([prov, d]) => {
-            const execPct = d.alloc > 0 ? (d.util / d.alloc) * 100 : 0
-            return (
-              <tr key={prov} className="hover:bg-fog/50">
-                <td className="px-4 py-2.5 font-semibold text-ink">{prov}</td>
-                <td className="px-4 py-2.5 text-right text-ash">{d.alloc.toFixed(1)}B</td>
-                <td className="px-4 py-2.5 text-right text-ash">{d.util.toFixed(1)}B</td>
-                <td className={cn('px-4 py-2.5 text-right font-bold',
-                  execPct < 40 ? 'text-danger' : execPct < 70 ? 'text-amber-600' : 'text-fern')}>
-                  {execPct.toFixed(0)}%
-                </td>
-                <td className="px-4 py-2.5 text-right text-ash">{d.count}</td>
-                <td className={cn('px-4 py-2.5 text-right font-bold', d.slow > 0 ? 'text-danger' : 'text-ash')}>
-                  {d.slow > 0 ? d.slow : '—'}
-                </td>
-              </tr>
-            )
-          })}
-        </tbody>
-      </table>
+      <div className="overflow-x-auto">
+        <table className="w-full text-xs">
+          <thead style={{ background: 'var(--color-surface-subtle)' }}>
+            <tr>
+              <th className="px-3 py-2 text-left font-semibold" style={{ color: 'var(--color-text-secondary)' }}>Province</th>
+              <th className="px-3 py-2 text-right font-semibold" style={{ color: 'var(--color-text-secondary)' }}>Alloc (B)</th>
+              <th className="px-3 py-2 text-right font-semibold" style={{ color: 'var(--color-text-secondary)' }}>Exec %</th>
+              <th className="px-3 py-2 text-right font-semibold" style={{ color: 'var(--color-text-secondary)' }}>Schemes</th>
+              <th className="px-3 py-2 text-right font-semibold" style={{ color: 'var(--color-text-secondary)' }}>Slow</th>
+            </tr>
+          </thead>
+          <tbody>
+            {provinces.map((p, i) => {
+              const execColor = p.avg_execution_pct < 40 ? '#dc2626' : p.avg_execution_pct < 70 ? '#b45309' : '#15803d'
+              return (
+                <tr key={p.province}
+                  style={{ borderTop: i > 0 ? '1px solid var(--color-border-subtle)' : undefined }}
+                  className="hover:bg-[#f9fafb]">
+                  <td className="px-3 py-2.5 font-semibold" style={{ color: 'var(--color-text-primary)' }}>{p.province}</td>
+                  <td className="px-3 py-2.5 text-right" style={{ color: 'var(--color-text-secondary)' }}>
+                    {p.total_allocation_bn?.toFixed(1) ?? '—'}
+                  </td>
+                  <td className="px-3 py-2.5 text-right font-bold" style={{ color: execColor }}>
+                    {p.avg_execution_pct?.toFixed(0) ?? '—'}%
+                  </td>
+                  <td className="px-3 py-2.5 text-right" style={{ color: 'var(--color-text-secondary)' }}>{p.scheme_count}</td>
+                  <td className="px-3 py-2.5 text-right font-bold"
+                    style={{ color: p.slow_moving_count > 0 ? '#dc2626' : 'var(--color-text-secondary)' }}>
+                    {p.slow_moving_count > 0 ? p.slow_moving_count : '—'}
+                  </td>
+                </tr>
+              )
+            })}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  )
+}
+
+// ── Sectoral Spending table ────────────────────────────────────────────────────
+
+function SectoralSpendingTable({ sectors }: { sectors: SectorRow[] }) {
+  return (
+    <div className="rounded-xl border overflow-hidden" style={{ borderColor: 'var(--color-border-subtle)', background: '#fff' }}>
+      <div className="px-5 py-3 border-b" style={{ borderColor: 'var(--color-border-subtle)' }}>
+        <p className="text-xs font-bold" style={{ color: 'var(--color-text-primary)' }}>Sectoral Spending & Opportunity Intelligence</p>
+      </div>
+      <div className="overflow-x-auto">
+        <table className="w-full text-xs">
+          <thead style={{ background: 'var(--color-surface-subtle)' }}>
+            <tr>
+              <th className="px-4 py-2.5 text-left font-semibold" style={{ color: 'var(--color-text-secondary)' }}>Sector</th>
+              <th className="px-4 py-2.5 text-right font-semibold" style={{ color: 'var(--color-text-secondary)' }}>Schemes</th>
+              <th className="px-4 py-2.5 text-right font-semibold" style={{ color: 'var(--color-text-secondary)' }}>Allocation (B)</th>
+              <th className="px-4 py-2.5 text-right font-semibold" style={{ color: 'var(--color-text-secondary)' }}>Utilized (B)</th>
+              <th className="px-4 py-2.5 text-right font-semibold" style={{ color: 'var(--color-text-secondary)' }}>Exec %</th>
+              <th className="px-4 py-2.5 text-right font-semibold" style={{ color: 'var(--color-text-secondary)' }}>Throwforward (B)</th>
+              <th className="px-4 py-2.5 text-right font-semibold" style={{ color: 'var(--color-text-secondary)' }}>Opp. Score</th>
+              <th className="px-4 py-2.5 text-right font-semibold" style={{ color: 'var(--color-text-secondary)' }}>Stress Score</th>
+              <th className="px-4 py-2.5 text-right font-semibold" style={{ color: 'var(--color-text-secondary)' }}>Donor-Linked</th>
+            </tr>
+          </thead>
+          <tbody className="divide-y" style={{ borderColor: 'var(--color-border-subtle)' }}>
+            {sectors.map(s => {
+              const execColor = s.avg_execution_pct < 40 ? '#dc2626' : s.avg_execution_pct < 70 ? '#b45309' : '#15803d'
+              const oppColor  = s.avg_opportunity_score >= 70 ? '#7c3aed' : s.avg_opportunity_score >= 40 ? '#b45309' : 'var(--color-text-secondary)'
+              const stressColor = s.avg_stress_score >= 70 ? '#dc2626' : s.avg_stress_score >= 40 ? '#b45309' : '#15803d'
+              return (
+                <tr key={s.sector} className="hover:bg-[#f9fafb]">
+                  <td className="px-4 py-2.5 font-semibold" style={{ color: 'var(--color-text-primary)' }}>{s.sector}</td>
+                  <td className="px-4 py-2.5 text-right" style={{ color: 'var(--color-text-secondary)' }}>{s.scheme_count}</td>
+                  <td className="px-4 py-2.5 text-right" style={{ color: 'var(--color-text-secondary)' }}>{s.total_allocation_bn?.toFixed(1) ?? '—'}</td>
+                  <td className="px-4 py-2.5 text-right" style={{ color: 'var(--color-text-secondary)' }}>{s.total_utilized_bn?.toFixed(1)   ?? '—'}</td>
+                  <td className="px-4 py-2.5 text-right font-bold" style={{ color: execColor }}>{s.avg_execution_pct?.toFixed(0) ?? '—'}%</td>
+                  <td className="px-4 py-2.5 text-right" style={{ color: '#b45309' }}>{s.total_throwforward_bn?.toFixed(1) ?? '—'}</td>
+                  <td className="px-4 py-2.5 text-right font-bold" style={{ color: oppColor }}>{s.avg_opportunity_score?.toFixed(0) ?? '—'}</td>
+                  <td className="px-4 py-2.5 text-right font-bold" style={{ color: stressColor }}>{s.avg_stress_score?.toFixed(0) ?? '—'}</td>
+                  <td className="px-4 py-2.5 text-right" style={{ color: 'var(--color-text-secondary)' }}>{s.donor_linked_count ?? 0}</td>
+                </tr>
+              )
+            })}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  )
+}
+
+// ── Ministry Efficiency table ──────────────────────────────────────────────────
+
+function MinistryEfficiencyTable({ ministries }: { ministries: MinistryRow[] }) {
+  return (
+    <div className="rounded-xl border overflow-hidden" style={{ borderColor: 'var(--color-border-subtle)', background: '#fff' }}>
+      <div className="px-5 py-3 border-b" style={{ borderColor: 'var(--color-border-subtle)' }}>
+        <p className="text-xs font-bold" style={{ color: 'var(--color-text-primary)' }}>Ministry Execution Efficiency</p>
+      </div>
+      <div className="overflow-x-auto">
+        <table className="w-full text-xs">
+          <thead style={{ background: 'var(--color-surface-subtle)' }}>
+            <tr>
+              <th className="px-4 py-2.5 text-left font-semibold" style={{ color: 'var(--color-text-secondary)' }}>Ministry</th>
+              <th className="px-4 py-2.5 text-right font-semibold" style={{ color: 'var(--color-text-secondary)' }}>Schemes</th>
+              <th className="px-4 py-2.5 text-right font-semibold" style={{ color: 'var(--color-text-secondary)' }}>Allocation (B)</th>
+              <th className="px-4 py-2.5 text-right font-semibold" style={{ color: 'var(--color-text-secondary)' }}>Utilized (B)</th>
+              <th className="px-4 py-2.5 text-right font-semibold" style={{ color: 'var(--color-text-secondary)' }}>Exec %</th>
+              <th className="px-4 py-2.5 text-right font-semibold" style={{ color: 'var(--color-text-secondary)' }}>Throwforward (B)</th>
+              <th className="px-4 py-2.5 text-right font-semibold" style={{ color: 'var(--color-text-secondary)' }}>Slow-Moving</th>
+              <th className="px-4 py-2.5 text-right font-semibold" style={{ color: 'var(--color-text-secondary)' }}>Backlog %</th>
+              <th className="px-4 py-2.5 text-right font-semibold" style={{ color: 'var(--color-text-secondary)' }}>Opp. Score</th>
+            </tr>
+          </thead>
+          <tbody className="divide-y" style={{ borderColor: 'var(--color-border-subtle)' }}>
+            {ministries.map(m => {
+              const execColor    = m.avg_execution_pct < 40 ? '#dc2626' : m.avg_execution_pct < 70 ? '#b45309' : '#15803d'
+              const backlogColor = m.backlog_pct > 60 ? '#dc2626' : m.backlog_pct > 40 ? '#b45309' : 'var(--color-text-secondary)'
+              return (
+                <tr key={m.ministry} className="hover:bg-[#f9fafb]">
+                  <td className="px-4 py-2.5 font-semibold max-w-[220px] truncate" style={{ color: 'var(--color-text-primary)' }} title={m.ministry}>{m.ministry}</td>
+                  <td className="px-4 py-2.5 text-right" style={{ color: 'var(--color-text-secondary)' }}>{m.scheme_count}</td>
+                  <td className="px-4 py-2.5 text-right" style={{ color: 'var(--color-text-secondary)' }}>{m.total_allocation_bn?.toFixed(1) ?? '—'}</td>
+                  <td className="px-4 py-2.5 text-right" style={{ color: 'var(--color-text-secondary)' }}>{m.total_utilized_bn?.toFixed(1)   ?? '—'}</td>
+                  <td className="px-4 py-2.5 text-right font-bold" style={{ color: execColor }}>{m.avg_execution_pct?.toFixed(0) ?? '—'}%</td>
+                  <td className="px-4 py-2.5 text-right" style={{ color: '#b45309' }}>{m.total_throwforward_bn?.toFixed(1) ?? '—'}</td>
+                  <td className="px-4 py-2.5 text-right font-bold"
+                    style={{ color: m.slow_moving_count > 0 ? '#dc2626' : 'var(--color-text-secondary)' }}>
+                    {m.slow_moving_count > 0 ? m.slow_moving_count : '—'}
+                  </td>
+                  <td className="px-4 py-2.5 text-right font-bold" style={{ color: backlogColor }}>{m.backlog_pct?.toFixed(0) ?? '—'}%</td>
+                  <td className="px-4 py-2.5 text-right" style={{ color: '#7c3aed' }}>{m.avg_opportunity_score?.toFixed(0) ?? '—'}</td>
+                </tr>
+              )
+            })}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  )
+}
+
+// ── Empty state ────────────────────────────────────────────────────────────────
+
+function EmptyState({ onClear }: { onClear: () => void }) {
+  return (
+    <div className="rounded-xl border border-dashed border-silver p-8 text-center">
+      <p className="text-sm text-ash">No schemes match the current filters</p>
+      <button onClick={onClear} className="mt-2 text-xs text-pine hover:underline">Clear filters</button>
     </div>
   )
 }
@@ -546,196 +657,290 @@ function ProvinceTable({ schemes }: { schemes: PsdpScheme[] }) {
 // ── Main dashboard ─────────────────────────────────────────────────────────────
 
 interface Props {
-  schemes: PsdpScheme[]
-  withOpps: number
+  schemes:    PsdpScheme[]
+  provinces:  ProvinceRow[]
+  ministries: MinistryRow[]
+  sectors:    SectorRow[]
+  withOpps:   number
 }
 
-export function PsdpDashboard({ schemes, withOpps }: Props) {
-  const [activeTab, setActiveTab] = useState<Tab>('Overview')
-  const [selected, setSelected] = useState<PsdpScheme | null>(null)
-  const [query, setQuery]           = useState('')
-  const [riskFilter, setRiskFilter]   = useState<SchemeRiskLevel | null>(null)
-  const [sectorFilter, setSectorFilter] = useState<string | null>(null)
+export function PsdpDashboard({ schemes, provinces, ministries, sectors, withOpps }: Props) {
+  const [activeTab, setActiveTab]           = useState<Tab>('Overview')
+  const [selected, setSelected]             = useState<PsdpScheme | null>(null)
+  const [query, setQuery]                   = useState('')
+  const [riskFilter, setRiskFilter]         = useState<SchemeRiskLevel | null>(null)
+  const [sectorFilter, setSectorFilter]     = useState<string | null>(null)
   const [provinceFilter, setProvinceFilter] = useState<string | null>(null)
-  const [sourceFilter, setSourceFilter] = useState<string | null>(null)
 
-  const sectors   = useMemo(() => [...new Set(schemes.map(s => s.sector).filter(Boolean))].sort() as string[], [schemes])
-  const provinces = useMemo(() => [...new Set(schemes.map(s => s.province).filter(Boolean))].sort() as string[], [schemes])
+  const sectorNames   = useMemo(() => [...new Set(schemes.map(s => s.sector).filter(Boolean))].sort() as string[], [schemes])
+  const provinceNames = useMemo(() => [...new Set(schemes.map(s => s.province).filter(Boolean))].sort() as string[], [schemes])
 
   const filtered = useMemo(() => schemes.filter(s => {
     if (query) {
       const q = query.toLowerCase()
       if (!s.title.toLowerCase().includes(q) &&
-          !(s.ministry ?? '').toLowerCase().includes(q) &&
+          !(s.ministry         ?? '').toLowerCase().includes(q) &&
           !(s.executing_agency ?? '').toLowerCase().includes(q) &&
-          !(s.implementer ?? '').toLowerCase().includes(q)) return false
+          !(s.implementer      ?? '').toLowerCase().includes(q)) return false
     }
-    if (riskFilter && s.risk_level !== riskFilter) return false
-    if (sectorFilter && s.sector !== sectorFilter) return false
-    if (provinceFilter && s.province !== provinceFilter) return false
-    if (sourceFilter && s.source !== sourceFilter) return false
+    if (riskFilter     && s.risk_level !== riskFilter)    return false
+    if (sectorFilter   && s.sector     !== sectorFilter)  return false
+    if (provinceFilter && s.province   !== provinceFilter) return false
     return true
-  }), [schemes, query, riskFilter, sectorFilter, provinceFilter, sourceFilter])
+  }), [schemes, query, riskFilter, sectorFilter, provinceFilter])
 
   const clearFilters = () => {
-    setQuery(''); setRiskFilter(null); setSectorFilter(null)
-    setProvinceFilter(null); setSourceFilter(null)
+    setQuery(''); setRiskFilter(null); setSectorFilter(null); setProvinceFilter(null)
   }
-  const hasFilters = query || riskFilter || sectorFilter || provinceFilter || sourceFilter
+  const hasFilters = !!(query || riskFilter || sectorFilter || provinceFilter)
 
   const tabSchemes = useMemo(() => {
-    if (activeTab === 'Federal PSDP')    return filtered.filter(s => s.source === 'federal_psdp')
-    if (activeTab === 'Provincial ADPs') return filtered.filter(s => s.source === 'provincial_adp')
-    if (activeTab === 'Opportunities')   return filtered.filter(s => s.opportunity_type !== 'none')
-    if (activeTab === 'Risk Intelligence') return filtered.filter(s => s.risk_level === 'high' || s.risk_level === 'critical' || s.is_slow_moving)
-    return filtered
+    switch (activeTab) {
+      case 'Federal PSDP':    return filtered.filter(s => s.source === 'federal_psdp')
+      case 'Provincial ADPs': return filtered.filter(s => s.source === 'provincial_adp')
+      case 'Opportunities':   return filtered.filter(s => s.opportunity_type !== 'none')
+      case 'Risk':            return filtered.filter(s => s.risk_level === 'high' || s.risk_level === 'critical' || s.is_slow_moving)
+      default:                return filtered
+    }
   }, [filtered, activeTab])
+
+  const showSearchBar = SCHEME_TABS.includes(activeTab)
 
   return (
     <div className="space-y-4">
-      {/* Search + filters */}
-      <div className="space-y-2">
-        <div className="flex flex-wrap items-center gap-2">
-          <div className="flex items-center gap-2 rounded-lg border border-silver bg-white px-3 py-2 min-w-[240px]">
-            <Search size={13} className="text-ash shrink-0" />
-            <input
-              type="text"
-              value={query}
-              onChange={e => setQuery(e.target.value)}
-              placeholder="Search schemes, ministries, implementers…"
-              className="flex-1 text-sm bg-transparent outline-none placeholder:text-ash"
-            />
-            {query && <button onClick={() => setQuery('')}><X size={12} className="text-ash" /></button>}
+
+      {/* ── Search + filters (only for scheme tabs) ── */}
+      {showSearchBar && (
+        <div className="space-y-2">
+          <div className="flex flex-wrap items-center gap-2">
+            <div className="flex items-center gap-2 rounded-lg border px-3 py-2 min-w-[240px]"
+              style={{ borderColor: 'var(--color-border-subtle)', background: '#fff' }}>
+              <Search size={13} style={{ color: 'var(--color-text-secondary)' }} className="shrink-0" />
+              <input
+                type="text"
+                value={query}
+                onChange={e => setQuery(e.target.value)}
+                placeholder="Search schemes, ministries, implementers…"
+                className="flex-1 text-sm bg-transparent outline-none"
+                style={{ color: 'var(--color-text-primary)' }}
+              />
+              {query && (
+                <button onClick={() => setQuery('')}>
+                  <X size={12} style={{ color: 'var(--color-text-secondary)' }} />
+                </button>
+              )}
+            </div>
+
+            {(['low', 'medium', 'high', 'critical'] as SchemeRiskLevel[]).map(r => (
+              <button key={r} onClick={() => setRiskFilter(riskFilter === r ? null : r)}
+                className="text-[11px] font-medium px-2.5 py-1 rounded-full border transition-colors"
+                style={{
+                  background:   riskFilter === r ? '#055C45' : '#fff',
+                  color:        riskFilter === r ? '#fff' : 'var(--color-text-secondary)',
+                  borderColor:  riskFilter === r ? '#055C45' : 'var(--color-border-subtle)',
+                }}>
+                {r.charAt(0).toUpperCase() + r.slice(1)}
+              </button>
+            ))}
+
+            {hasFilters && (
+              <button onClick={clearFilters} className="text-xs hover:underline" style={{ color: '#dc2626' }}>Clear</button>
+            )}
           </div>
 
-          {/* Risk filter */}
-          {(['low','medium','high','critical'] as SchemeRiskLevel[]).map(r => (
-            <button key={r} onClick={() => setRiskFilter(riskFilter === r ? null : r)}
-              className={cn('text-[11px] font-medium px-2.5 py-1 rounded-full border transition-colors',
-                riskFilter === r ? 'bg-pine text-white border-pine' : 'border-silver text-ash hover:bg-fog')}>
-              {r.charAt(0).toUpperCase() + r.slice(1)}
-            </button>
-          ))}
-
-          {hasFilters && (
-            <button onClick={clearFilters} className="text-xs text-danger hover:underline">Clear</button>
-          )}
+          <div className="flex flex-wrap gap-1.5">
+            {sectorNames.slice(0, 8).map(s => (
+              <button key={s} onClick={() => setSectorFilter(sectorFilter === s ? null : s)}
+                className="text-[10px] font-medium px-2 py-0.5 rounded-full border transition-colors"
+                style={{
+                  background:  sectorFilter === s ? '#055C45' : '#fff',
+                  color:       sectorFilter === s ? '#fff' : 'var(--color-text-secondary)',
+                  borderColor: sectorFilter === s ? '#055C45' : 'var(--color-border-subtle)',
+                }}>
+                {s}
+              </button>
+            ))}
+            {provinceNames.map(p => (
+              <button key={p} onClick={() => setProvinceFilter(provinceFilter === p ? null : p)}
+                className="text-[10px] font-medium px-2 py-0.5 rounded-full border transition-colors"
+                style={{
+                  background:  provinceFilter === p ? '#1d4ed8' : '#fff',
+                  color:       provinceFilter === p ? '#fff' : 'var(--color-text-secondary)',
+                  borderColor: provinceFilter === p ? '#1d4ed8' : 'var(--color-border-subtle)',
+                }}>
+                {p}
+              </button>
+            ))}
+          </div>
         </div>
+      )}
 
-        <div className="flex flex-wrap gap-1.5">
-          {sectors.slice(0, 8).map(s => (
-            <button key={s} onClick={() => setSectorFilter(sectorFilter === s ? null : s)}
-              className={cn('text-[10px] font-medium px-2 py-0.5 rounded-full border transition-colors',
-                sectorFilter === s ? 'bg-pine text-white border-pine' : 'border-silver text-ash hover:bg-fog')}>
-              {s}
-            </button>
-          ))}
-          {provinces.map(p => (
-            <button key={p} onClick={() => setProvinceFilter(provinceFilter === p ? null : p)}
-              className={cn('text-[10px] font-medium px-2 py-0.5 rounded-full border transition-colors',
-                provinceFilter === p ? 'bg-forest text-white border-forest' : 'border-silver text-ash hover:bg-fog')}>
-              {p}
-            </button>
-          ))}
-        </div>
-      </div>
-
-      {/* Tabs */}
-      <div className="flex gap-1 border-b border-silver">
+      {/* ── Tab strip ── */}
+      <div className="flex gap-0.5 border-b overflow-x-auto" style={{ borderColor: 'var(--color-border-subtle)' }}>
         {TABS.map(tab => (
           <button key={tab} onClick={() => setActiveTab(tab)}
-            className={cn('px-4 py-2 text-sm font-medium transition-colors border-b-2 -mb-px',
-              activeTab === tab
-                ? 'border-pine text-pine'
-                : 'border-transparent text-ash hover:text-ink')}>
+            className="px-3 py-2 text-sm font-medium transition-colors border-b-2 -mb-px whitespace-nowrap"
+            style={{
+              borderBottomColor: activeTab === tab ? '#055C45' : 'transparent',
+              color:             activeTab === tab ? '#055C45' : 'var(--color-text-secondary)',
+            }}>
             {tab}
           </button>
         ))}
       </div>
 
-      {/* Overview: sector chart + province table + scheme grid */}
+      {/* ════════════════ TAB CONTENT ════════════════ */}
+
+      {/* ── Overview ── */}
       {activeTab === 'Overview' && (
         <div className="space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <SectorChart schemes={filtered} />
-            <ProvinceTable schemes={filtered} />
+            <ProvincialAllocationsTable provinces={provinces} />
           </div>
 
-          {/* Key metrics strip */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
             {[
-              {
-                icon: <TrendingUp size={14} />,
-                label: 'Schemes with Opportunities',
-                value: filtered.filter(s => s.opportunity_type !== 'none').length,
-                color: 'text-pine',
-              },
-              {
-                icon: <AlertTriangle size={14} />,
-                label: 'High/Critical Risk',
-                value: filtered.filter(s => s.risk_level === 'high' || s.risk_level === 'critical').length,
-                color: 'text-danger',
-              },
-              {
-                icon: <Banknote size={14} />,
-                label: 'Donor-Linked Schemes',
-                value: filtered.filter(s => s.is_donor_linked).length,
-                color: 'text-blue-600',
-              },
-              {
-                icon: <Eye size={14} />,
-                label: 'Under-Utilized',
-                value: filtered.filter(s => s.is_under_utilized).length,
-                color: 'text-amber-600',
-              },
+              { icon: <TrendingUp size={14} />, label: 'With Opportunities', value: filtered.filter(s => s.opportunity_type !== 'none').length, color: '#055C45' },
+              { icon: <AlertTriangle size={14} />, label: 'High/Critical Risk',   value: filtered.filter(s => s.risk_level === 'high' || s.risk_level === 'critical').length, color: '#dc2626' },
+              { icon: <Banknote size={14} />, label: 'Donor-Linked',          value: filtered.filter(s => s.is_donor_linked).length, color: '#2563eb' },
+              { icon: <Eye size={14} />, label: 'Under-Utilized',          value: filtered.filter(s => s.is_under_utilized).length, color: '#b45309' },
             ].map(m => (
-              <div key={m.label} className="rounded-xl border border-silver bg-card p-4 flex gap-3 items-start">
-                <div className={cn('mt-0.5', m.color)}>{m.icon}</div>
+              <div key={m.label} className="rounded-xl border p-4 flex gap-3 items-start"
+                style={{ borderColor: 'var(--color-border-subtle)', background: '#fff' }}>
+                <div style={{ color: m.color, marginTop: '2px' }}>{m.icon}</div>
                 <div>
-                  <div className={cn('text-xl font-bold', m.color)}>{m.value}</div>
-                  <div className="text-xs text-ash mt-0.5">{m.label}</div>
+                  <div className="text-xl font-bold" style={{ color: m.color }}>{m.value}</div>
+                  <div className="text-xs mt-0.5" style={{ color: 'var(--color-text-secondary)' }}>{m.label}</div>
                 </div>
               </div>
             ))}
           </div>
 
-          <p className="text-xs text-ash font-medium">{filtered.length} scheme{filtered.length !== 1 ? 's' : ''}</p>
+          <p className="text-xs font-medium" style={{ color: 'var(--color-text-secondary)' }}>
+            {filtered.length} scheme{filtered.length !== 1 ? 's' : ''}
+          </p>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {filtered.map(s => <SchemeCard key={s.id} scheme={s} onClick={() => setSelected(s)} />)}
           </div>
         </div>
       )}
 
-      {/* List views for other tabs */}
-      {activeTab !== 'Overview' && (
+      {/* ── Federal PSDP ── */}
+      {activeTab === 'Federal PSDP' && (
         <div className="space-y-4">
-          {activeTab === 'Risk Intelligence' && (
-            <div className="rounded-xl border border-danger/20 bg-danger/5 p-4 text-xs text-danger leading-relaxed">
-              <AlertTriangle size={12} className="inline mr-1" />
-              Showing high-risk and slow-moving schemes. These may signal TA demand for execution support, M&E, or restructuring.
-            </div>
-          )}
-          {activeTab === 'Opportunities' && (
-            <div className="rounded-xl border border-pine/20 bg-pine/5 p-4 text-xs text-pine leading-relaxed">
-              <Zap size={12} className="inline mr-1" />
-              {tabSchemes.length} scheme{tabSchemes.length !== 1 ? 's' : ''} with active opportunity windows.
-              Click any card to see the firm-perspective positioning note.
-            </div>
-          )}
-          <p className="text-xs text-ash font-medium">{tabSchemes.length} scheme{tabSchemes.length !== 1 ? 's' : ''}</p>
+          <p className="text-xs font-medium" style={{ color: 'var(--color-text-secondary)' }}>
+            {tabSchemes.length} federal scheme{tabSchemes.length !== 1 ? 's' : ''}
+          </p>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {tabSchemes.map(s => <SchemeCard key={s.id} scheme={s} onClick={() => setSelected(s)} />)}
           </div>
-          {tabSchemes.length === 0 && (
-            <div className="rounded-xl border border-dashed border-silver p-8 text-center">
-              <p className="text-sm text-ash">No schemes match the current filters</p>
-              <button onClick={clearFilters} className="mt-2 text-xs text-pine hover:underline">Clear filters</button>
-            </div>
-          )}
+          {tabSchemes.length === 0 && <EmptyState onClear={clearFilters} />}
         </div>
       )}
 
-      {/* Slide-in detail panel */}
+      {/* ── Provincial ADPs ── */}
+      {activeTab === 'Provincial ADPs' && (
+        <div className="space-y-4">
+          {/* Map + table side-by-side */}
+          <div className="grid grid-cols-1 lg:grid-cols-5 gap-4 items-start">
+            <div className="lg:col-span-3">
+              <PsdpProvinceMap provinces={provinces} />
+            </div>
+            <div className="lg:col-span-2">
+              <ProvincialAllocationsTable provinces={provinces} />
+            </div>
+          </div>
+
+          {/* Provincial scheme cards */}
+          <p className="text-xs font-medium" style={{ color: 'var(--color-text-secondary)' }}>
+            {tabSchemes.length} provincial scheme{tabSchemes.length !== 1 ? 's' : ''}
+          </p>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {tabSchemes.map(s => <SchemeCard key={s.id} scheme={s} onClick={() => setSelected(s)} />)}
+          </div>
+          {tabSchemes.length === 0 && <EmptyState onClear={clearFilters} />}
+        </div>
+      )}
+
+      {/* ── Opportunities ── */}
+      {activeTab === 'Opportunities' && (
+        <div className="space-y-4">
+          <div className="rounded-xl border p-4 text-xs leading-relaxed"
+            style={{ borderColor: '#a7f3d0', background: '#ecfdf5', color: '#055C45' }}>
+            <Zap size={12} className="inline mr-1" />
+            {tabSchemes.length} scheme{tabSchemes.length !== 1 ? 's' : ''} with active opportunity windows.
+            Click any card to see the firm-perspective positioning note.
+          </div>
+          <p className="text-xs font-medium" style={{ color: 'var(--color-text-secondary)' }}>
+            {tabSchemes.length} scheme{tabSchemes.length !== 1 ? 's' : ''}
+          </p>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {tabSchemes.map(s => <SchemeCard key={s.id} scheme={s} onClick={() => setSelected(s)} />)}
+          </div>
+          {tabSchemes.length === 0 && <EmptyState onClear={clearFilters} />}
+        </div>
+      )}
+
+      {/* ── Risk ── */}
+      {activeTab === 'Risk' && (
+        <div className="space-y-4">
+          <div className="rounded-xl border p-4 text-xs leading-relaxed"
+            style={{ borderColor: '#fecaca', background: '#fef2f2', color: '#dc2626' }}>
+            <AlertTriangle size={12} className="inline mr-1" />
+            Showing high-risk and slow-moving schemes. These may signal demand for TA, M&E, or restructuring support.
+          </div>
+          <p className="text-xs font-medium" style={{ color: 'var(--color-text-secondary)' }}>
+            {tabSchemes.length} scheme{tabSchemes.length !== 1 ? 's' : ''}
+          </p>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {tabSchemes.map(s => <SchemeCard key={s.id} scheme={s} onClick={() => setSelected(s)} />)}
+          </div>
+          {tabSchemes.length === 0 && <EmptyState onClear={clearFilters} />}
+        </div>
+      )}
+
+      {/* ── Sectoral Spending ── */}
+      {activeTab === 'Sectoral Spending' && (
+        <SectoralSpendingTable sectors={sectors} />
+      )}
+
+      {/* ── Ministry Efficiency ── */}
+      {activeTab === 'Ministry Efficiency' && (
+        <MinistryEfficiencyTable ministries={ministries} />
+      )}
+
+      {/* ── All Schemes ── */}
+      {activeTab === 'All Schemes' && (
+        <div className="space-y-4">
+          <p className="text-xs font-medium" style={{ color: 'var(--color-text-secondary)' }}>
+            {filtered.length} scheme{filtered.length !== 1 ? 's' : ''}
+          </p>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {filtered.map(s => <SchemeCard key={s.id} scheme={s} onClick={() => setSelected(s)} />)}
+          </div>
+          {filtered.length === 0 && <EmptyState onClear={clearFilters} />}
+        </div>
+      )}
+
+      {/* ── Opportunity Scoring ── */}
+      {activeTab === 'Opportunity Scoring' && (
+        <PsdpOutcomeIntelligence sectorData={sectors} />
+      )}
+
+      {/* ── Population ── */}
+      {activeTab === 'Population' && (
+        <div className="space-y-6">
+          <PsdpPopulationInsights
+            schemes={schemes}
+            provinces={provinces}
+            sectors={sectors}
+          />
+          <PsdpSecurityPanel />
+        </div>
+      )}
+
+      {/* ── Slide-in detail panel ── */}
       {selected && <SchemePanel scheme={selected} onClose={() => setSelected(null)} />}
     </div>
   )
