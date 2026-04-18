@@ -77,7 +77,7 @@ function MiniBar({ value, max, color }: { value: number; max: number; color: str
   )
 }
 
-function DualBar({ a, b, labelA, labelB }: { a: number; b: number; labelA: string; labelB: string }) {
+function DualBar({ a, b, labelA, labelB: _labelB }: { a: number; b: number; labelA: string; labelB: string }) {
   // Side-by-side bars for allocation% vs burden%
   return (
     <div style={{ display: 'flex', gap: 3, alignItems: 'center', height: 8 }}>
@@ -90,7 +90,7 @@ function DualBar({ a, b, labelA, labelB }: { a: number; b: number; labelA: strin
 // ── Main component ────────────────────────────────────────────────────────────
 
 export function PsdpPopulationInsights({ schemes, provinces, sectors, onActionSelect, filters }: Props) {
-  const [activeSection, setActiveSection] = useState<number | null>(null)
+  const [_activeSection, setActiveSection] = useState<number | null>(null)
 
   const { kpis, pressureRankings, spendMismatches, portfolio, perCapitaLoad, actionSignals } =
     usePopulationInsights(schemes, provinces, sectors, '2024-25', filters)
@@ -107,7 +107,7 @@ export function PsdpPopulationInsights({ schemes, provinces, sectors, onActionSe
     )
   }
 
-  const maxPressure = Math.max(...pressureRankings.map(r => r.pressureScore), 1)
+  const _maxPressure = Math.max(...pressureRankings.map(r => r.pressureScore), 1)
   const maxPerCapita = Math.max(...perCapitaLoad.map(r => r.growthAdjustedPerCapita), 1)
 
   return (

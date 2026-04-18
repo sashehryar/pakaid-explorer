@@ -661,10 +661,10 @@ interface Props {
   provinces:  ProvinceRow[]
   ministries: MinistryRow[]
   sectors:    SectorRow[]
-  withOpps:   number
+  withOpps?:  number
 }
 
-export function PsdpDashboard({ schemes, provinces, ministries, sectors, withOpps }: Props) {
+export function PsdpDashboard({ schemes, provinces, ministries, sectors }: Props) {
   const [activeTab, setActiveTab]           = useState<Tab>('Overview')
   const [selected, setSelected]             = useState<PsdpScheme | null>(null)
   const [query, setQuery]                   = useState('')

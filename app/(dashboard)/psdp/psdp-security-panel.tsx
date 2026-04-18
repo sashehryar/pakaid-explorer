@@ -21,7 +21,7 @@ function blendColor(value: number, min: number, max: number, lo: string, hi: str
 }
 
 function MiniSparkline({
-  points, colorLo, colorHi, height = 28,
+  points, colorLo: _colorLo, colorHi, height = 28,
 }: { points: { year: number; value: number }[]; colorLo: string; colorHi: string; height?: number }) {
   if (!points.length) return null
   const vals = points.map(p => p.value)

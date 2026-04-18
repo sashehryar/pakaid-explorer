@@ -240,7 +240,7 @@ export function PsdpOutcomeIntelligence({ sectorData = [] }: Props) {
         </div>
         <div className="rounded-lg p-3 text-xs" style={{ background: 'var(--color-surface-subtle)', color: 'var(--color-text-secondary)' }}>
           <strong style={{ color: 'var(--color-text-primary)' }}>Methodology note:</strong> Cross-referencing PSLM, LFS, and Economic Survey with PSDP/ADP identifies mismatch, concentration, and gaps —
-          not causal proof. Geography and time alignment is explicitly labelled as "aligned indicator view" or "proxy comparison."
+          not causal proof. Geography and time alignment is explicitly labelled as &quot;aligned indicator view&quot; or &quot;proxy comparison.&quot;
           PBS methodology breaks (19th ICLS transition) are marked to prevent false trend conclusions.
         </div>
       </div>
