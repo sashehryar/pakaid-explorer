@@ -33,7 +33,8 @@ const TABS: NavTab[] = [
 
 const TIER_ORDER: Record<UserTier, number> = { free: 0, pro: 1, institutional: 2 }
 
-function canAccess(tabTier: UserTier | 'free', userTier: UserTier): boolean {
+function canAccess(tabTier: UserTier | 'free', userTier: UserTier, isAdmin: boolean): boolean {
+  if (isAdmin) return true
   return TIER_ORDER[userTier] >= TIER_ORDER[tabTier as UserTier]
 }
 
@@ -85,7 +86,7 @@ export function TopNav({ userTier, isAdmin }: TopNavProps) {
         role="tablist"
       >
         {TABS.map((tab, idx) => {
-          const accessible = canAccess(tab.tier, userTier)
+          const accessible = canAccess(tab.tier, userTier, isAdmin)
           const active = isActive(tab.href, pathname)
           return (
             <Link
@@ -142,7 +143,7 @@ export function TopNav({ userTier, isAdmin }: TopNavProps) {
       >
         {primaryTabs.map(tab => {
           const active = isActive(tab.href, pathname)
-          const accessible = canAccess(tab.tier, userTier)
+          const accessible = canAccess(tab.tier, userTier, isAdmin)
           return (
             <Link
               key={tab.href}
@@ -195,7 +196,7 @@ export function TopNav({ userTier, isAdmin }: TopNavProps) {
                 role="menu"
               >
                 {overflowTabs.map(tab => {
-                  const accessible = canAccess(tab.tier, userTier)
+                  const accessible = canAccess(tab.tier, userTier, isAdmin)
                   const active = isActive(tab.href, pathname)
                   return (
                     <Link

@@ -13,8 +13,8 @@ const UPGRADE_COPY: Record<string, { headline: string; cta: string }> = {
   },
 }
 
-export function UpgradeBanner({ tier }: { tier: UserTier }) {
-  if (tier === 'institutional') return null
+export function UpgradeBanner({ tier, isAdmin }: { tier: UserTier; isAdmin?: boolean }) {
+  if (tier === 'institutional' || isAdmin) return null
 
   const copy = UPGRADE_COPY[tier]
 

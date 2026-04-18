@@ -40,7 +40,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
       <TopNav userTier={tier} isAdmin={isAdmin} />
 
       {/* ── Upgrade banner (non-intrusive, dismissible) ───────────── */}
-      <UpgradeBanner tier={tier} />
+      <UpgradeBanner tier={tier} isAdmin={isAdmin} />
 
       {/* ── Main content ─────────────────────────────────────────── */}
       <main
