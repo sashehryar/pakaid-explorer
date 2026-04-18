@@ -64,7 +64,7 @@ const TABS = [
 type Tab = typeof TABS[number]
 
 // Tabs that display filtered scheme cards (search/filter bar is relevant)
-const SCHEME_TABS: Tab[] = ['Overview', 'Federal PSDP', 'Provincial ADPs', 'Opportunities', 'Risk', 'All Schemes']
+const SCHEME_TABS: Tab[] = ['Federal PSDP', 'Provincial ADPs', 'Opportunities', 'Risk', 'All Schemes']
 
 // ── Helper components ──────────────────────────────────────────────────────────
 
@@ -817,12 +817,9 @@ export function PsdpDashboard({ schemes, provinces, ministries, sectors }: Props
             ))}
           </div>
 
-          <p className="text-xs font-medium" style={{ color: 'var(--color-text-secondary)' }}>
-            {filtered.length} scheme{filtered.length !== 1 ? 's' : ''}
+          <p className="text-xs" style={{ color: 'var(--color-text-secondary)' }}>
+            {filtered.length} total scheme{filtered.length !== 1 ? 's' : ''} — use the tabs above to drill into Federal PSDP, Provincial ADPs, Opportunities, or Risk.
           </p>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {filtered.map(s => <SchemeCard key={s.id} scheme={s} onClick={() => setSelected(s)} />)}
-          </div>
         </div>
       )}
 
