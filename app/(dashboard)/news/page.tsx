@@ -8,11 +8,11 @@ export const metadata: Metadata = { title: 'News & Updates' }
 export default async function NewsPage() {
   const supabase = await createClient()
 
-  // Latest articles first; secondary sort by relevance score
+  // Latest articles first — published_at is often null, fall back to created_at; secondary sort by relevance
   const { data: articles } = await supabase
     .from('news_articles')
     .select('*')
-    .order('published_at',    { ascending: false, nullsFirst: false })
+    .order('created_at',      { ascending: false, nullsFirst: false })
     .order('composite_score', { ascending: false, nullsFirst: false })
     .limit(100)
 

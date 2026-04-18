@@ -66,9 +66,9 @@ export default async function HomePage() {
       .single(),
     supabase
       .from('news_articles')
-      .select('id,title,source,published_at,what_happened,why_it_matters,potential_action,url,composite_score,excerpt')
+      .select('id,title,source,published_at,created_at,what_happened,why_it_matters,potential_action,url,composite_score,excerpt')
+      .order('created_at',      { ascending: false, nullsFirst: false })
       .order('composite_score', { ascending: false, nullsFirst: false })
-      .order('published_at', { ascending: false })
       .limit(8),
     supabase
       .from('projects')
@@ -173,7 +173,7 @@ export default async function HomePage() {
                         {article.source}
                       </span>
                       <span className="text-[10px] ml-auto" style={{ color: 'var(--color-text-secondary)' }}>
-                        {timeAgo(article.published_at)}
+                        {timeAgo(article.published_at ?? (article as any).created_at)}
                       </span>
                     </div>
                     {/* Title */}
